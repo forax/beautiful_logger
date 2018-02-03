@@ -2,9 +2,12 @@ package com.github.forax.beautifullogger;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.forax.beautifullogger.Logger;
+import com.github.forax.beautifullogger.LoggerConfig;
+
 //FIXME use JMH instead
 @SuppressWarnings("static-method")
-class LoggerPerfTest {
+class LoggerPerfTests {
   private static class Perf1 {
     static int sinkHole;
     

@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.forax.beautifullogger.LoggerConfig;
+import com.github.forax.beautifullogger.LoggerServiceSPI;
 import com.github.forax.beautifullogger.Logger.Level;
 import java.lang.invoke.MethodHandle;
 import java.security.Principal;
@@ -14,7 +16,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("static-method")
-class LoggerServiceSPITest {
+class LoggerServiceSPITests {
   interface MethodLoggerService {
     void log(Level level, Throwable context, Object messageProvider);
     

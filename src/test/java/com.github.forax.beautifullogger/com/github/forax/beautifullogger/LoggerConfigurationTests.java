@@ -7,11 +7,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
+import com.github.forax.beautifullogger.Logger;
+import com.github.forax.beautifullogger.LoggerConfig;
 import com.github.forax.beautifullogger.Logger.Level;
 import com.github.forax.beautifullogger.LoggerConfig.Printer;
 
 @SuppressWarnings("static-method")
-class LoggerConfigurationTest {
+class LoggerConfigurationTests {
   @Test
   void loggerDisableAtCreationTime() {
     Logger logger = Logger.getLogger(

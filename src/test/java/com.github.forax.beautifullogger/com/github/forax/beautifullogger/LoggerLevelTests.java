@@ -20,10 +20,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.github.forax.beautifullogger.Logger;
 import com.github.forax.beautifullogger.Logger.Level;
 
 @SuppressWarnings("static-method")
-class LoggerLevelTest {
+class LoggerLevelTests {
 
   private static Stream<Arguments> logNullThrowableAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
