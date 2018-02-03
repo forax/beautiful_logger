@@ -11,9 +11,9 @@ import com.github.forax.beautifullogger.Logger.Level;
 import com.github.forax.beautifullogger.LoggerConfig.Printer;
 
 @SuppressWarnings("static-method")
-public class LoggerConfigurationTest {
+class LoggerConfigurationTest {
   @Test
-  public void loggerDisableAtCreationTime() {
+  void loggerDisableAtCreationTime() {
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
         opt -> opt.enable(false).printer((message, loggerLevel, context) -> {
@@ -27,7 +27,7 @@ public class LoggerConfigurationTest {
   }
   
   @Test
-  public void loggerDisableAfterCreationTime() {
+  void loggerDisableAfterCreationTime() {
     Class<?> clazz = new Object() {/*empty*/}.getClass(); 
     Logger logger = Logger.getLogger(
         clazz,
@@ -43,10 +43,10 @@ public class LoggerConfigurationTest {
   }
   
   @Test
-  public void loggerEnableThenDisable() {
+  void loggerEnableThenDisable() {
     Class<?> clazz = new Object() {/*empty*/}.getClass();
     class MyPrinter implements Printer {
-      boolean disable;
+      private boolean disable;
       
       @Override
       public void print(String message, Level level, Throwable context) {
