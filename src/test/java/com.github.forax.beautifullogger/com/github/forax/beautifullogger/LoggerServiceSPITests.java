@@ -12,7 +12,6 @@ import java.lang.invoke.MethodHandle;
 import java.security.Principal;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("static-method")
@@ -92,10 +91,10 @@ class LoggerServiceSPITests {
     }
   }
   @Test
-  @Disabled("AssertionFailedError: expected: <true> but was: <false>")
   void testUserDefinedAuthLoggerService() {
     AuthLoggerService service = AuthLoggerService.getService();
-    LoggerConfig config = LoggerConfig.fromClass(AuthLoggerService.class);
+    LoggerConfig config = LoggerConfig.fromClass(AuthLoggerService.class)
+        .update(opt -> opt.level(Level.TRACE));
     
     boolean[] called1 = { false };
     config.update(opt -> opt.printer((message, level, context) -> {
