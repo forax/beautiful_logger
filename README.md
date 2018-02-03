@@ -5,7 +5,7 @@ Technically it's not a new logging API but more a wrapper (more like SLF4J) arou
 By default, it delegates to the Java System.Logger API and you can configure the logging library you want to use
 on any Loggers, packages or modules.
 
-This library required Java 9 and obviously is full Java 9 compatible.
+This library required Java 9 and obviously is fully Java 9 compatible.
 
 ## Features
 - *real* zero cost (no allocation, no branch, no assembly code) disabled logger
