@@ -1,0 +1,8 @@
+jdk:
+ - oraclejdk9
+install:
+- jshell build.jsh
+- ARTIFACTS="bin/bach"
+- JARS="-Dfile=$ARTIFACTS/beautifullogger.jar -Dsources=$ARTIFACTS/beautifullogger-sources.jar -Djavadoc=$ARTIFACTS/beautifullogger-javadoc.jar"
+- find $ARTIFACTS
+- mvn install:install-file $JARS -DgroupId=$GROUP -DartifactId=beautifullogger -Dversion=$VERSION -Dpackaging=jar -DgeneratePom=true

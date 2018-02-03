@@ -7,10 +7,15 @@ String name = "com.github.forax.beautifullogger"
 
 String junitPlatformVersion = "1.1.0-M2" // bundles the corresponding Jupiter "5.x.y[-z]"
 
-Path classes = Paths.get("bin/bach/classes")
 Path sources = Paths.get("src/main/java")
 Path tests = Paths.get("src/test/java")
-Path beautiful = Paths.get("bin/bach/beautifullogger.jar")
+
+Path classes = Paths.get("bin/bach/classes")
+Path javadoc = Paths.get("bin/bach/javadoc")
+
+Path beautifulJar = Paths.get("bin/bach/beautifullogger.jar")
+Path beautifulSources = Paths.get("bin/bach/beautifullogger-sources.jar")
+Path beautifulJavadoc = Paths.get("bin/bach/beautifullogger-javadoc.jar")
 
 /*
  * Switch Bach to verbose mode. That'll print the commands before execution.
@@ -49,19 +54,27 @@ java("--version")
  */
 javac("-d", classes.resolve("main"), Bach.Command.visit(command -> command.addAllJavaFiles(sources)))
 
+
+/*
+ * Javadoc.
+ */
+javadoc("-html5", "-quiet", "-Xdoclint:all,-missing", "-linksource", "-link", "https://docs.oracle.com/javase/9/docs/api", "-d", javadoc, Bach.Command.visit(command -> command.addAllJavaFiles(sources)))
+
 /*
  * Package.
  */
-jar("--create", "--file", beautiful, "-C", classes.resolve("main"), ".")
+jar("--create", "--file", beautifulJar, "-C", classes.resolve("main"), ".")
+jar("--create", "--file", beautifulSources, "-C", sources, ".")
+jar("--create", "--file", beautifulJavadoc, "-C", javadoc, ".")
 
 /*
  * Load and use JUnit Platform Console Standalone distribution for compiling and running tests.
  */
 Path junit = new Bach.Basics.Resolvable("org.junit.platform", "junit-platform-console-standalone", junitPlatformVersion).resolve(Paths.get("bin/bach/tools/junit"), Bach.Basics.Resolvable.REPOSITORIES)
 
-String testClassPath = String.join(File.pathSeparator, beautiful.toString(), junit.toString())
+String testClassPath = String.join(File.pathSeparator, beautifulJar.toString(), junit.toString())
 javac("-d", classes.resolve("test"), "--class-path", testClassPath, Bach.Command.visit(command -> command.addAllJavaFiles(tests)))
 
-java("-ea", "-jar", junit, "--class-path", classes.resolve("test"), "--class-path", beautiful, "--scan-classpath");
+java("-ea", "-jar", junit, "--class-path", classes.resolve("test"), "--class-path", beautifulJar, "--scan-classpath");
 
 /exit
