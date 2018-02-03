@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.IntFunction;
-import java.util.function.LongFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -108,11 +106,11 @@ class LoggerLevelTests {
   
   static Stream<Arguments> logIntFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
-        entry(l -> l.debug((IntFunction<String>) Integer::toString, 1),   Level.DEBUG),
-        entry(l -> l.error((IntFunction<String>) Integer::toString, 1),   Level.ERROR),
-        entry(l -> l.info((IntFunction<String>) Integer::toString, 1),    Level.INFO),
-        entry(l -> l.trace((IntFunction<String>) Integer::toString, 1),   Level.TRACE),
-        entry(l -> l.warning((IntFunction<String>) Integer::toString, 1), Level.WARNING));
+        entry(l -> l.debug((int v) -> "" + v, 1),   Level.DEBUG),
+        entry(l -> l.error((int v) -> "" + v, 1),   Level.ERROR),
+        entry(l -> l.info((int v) -> "" + v, 1),    Level.INFO),
+        entry(l -> l.trace((int v) -> "" + v, 1),   Level.TRACE),
+        entry(l -> l.warning((int v) -> "" + v, 1), Level.WARNING));
     return list.stream().map(e -> Arguments.of(e.getKey(), e.getValue()));
   }
   @ParameterizedTest
@@ -135,11 +133,11 @@ class LoggerLevelTests {
 
   static Stream<Arguments> logLongFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
-        entry(l -> l.debug((LongFunction<String>) Long::toString, 2L),   Level.DEBUG),
-        entry(l -> l.error((LongFunction<String>) Long::toString, 2L),   Level.ERROR),
-        entry(l -> l.info((LongFunction<String>) Long::toString, 2L),    Level.INFO),
-        entry(l -> l.trace((LongFunction<String>) Long::toString, 2L),   Level.TRACE),
-        entry(l -> l.warning((LongFunction<String>) Long::toString, 2L), Level.WARNING));
+        entry(l -> l.debug((long v) -> "" + v, 2L),   Level.DEBUG),
+        entry(l -> l.error((long v) -> "" + v, 2L),   Level.ERROR),
+        entry(l -> l.info((long v) -> "" + v, 2L),    Level.INFO),
+        entry(l -> l.trace((long v) -> "" + v, 2L),   Level.TRACE),
+        entry(l -> l.warning((long v) -> "" + v, 2L), Level.WARNING));
     return list.stream().map(e -> Arguments.of(e.getKey(), e.getValue()));
   }
   @ParameterizedTest
