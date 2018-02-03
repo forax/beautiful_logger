@@ -1,16 +1,18 @@
 package com.github.forax.beautifullogger;
 
 import static java.util.Map.entry;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.function.LongFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -21,8 +23,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.github.forax.beautifullogger.Logger.Level;
 
 @SuppressWarnings("static-method")
-public class LoggerLevelTest {
-  public static Stream<Arguments> logNullThrowableAndLevelPairSource() {
+class LoggerLevelTest {
+
+  private static Stream<Arguments> logNullThrowableAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
         entry(l -> l.debug("hello", null),   Level.DEBUG),
         entry(l -> l.error("hello", null),   Level.ERROR),
@@ -31,9 +34,10 @@ public class LoggerLevelTest {
         entry(l -> l.warning("hello", null), Level.WARNING));
     return list.stream().map(e -> Arguments.of(e.getKey(), e.getValue()));
   }
+
   @ParameterizedTest
   @MethodSource("logNullThrowableAndLevelPairSource")
-  public void logNullThrowableAndLevelMatch(Consumer<Logger> consumer, Level level) {
+  void logNullThrowableAndLevelMatch(Consumer<Logger> consumer, Level level) {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
@@ -48,7 +52,7 @@ public class LoggerLevelTest {
     assertTrue(marked[0]);
   }
   
-  public static Stream<Arguments> logThrowableAndLevelPairSource() {
+  private static Stream<Arguments> logThrowableAndLevelPairSource() {
     List<Entry<BiConsumer<Logger, Throwable>, Level>> list = List.of(
         entry((l, t) -> l.debug("exception", t),   Level.DEBUG),
         entry((l, t) -> l.error("exception", t),   Level.ERROR),
@@ -59,7 +63,7 @@ public class LoggerLevelTest {
   }
   @ParameterizedTest
   @MethodSource("logThrowableAndLevelPairSource")
-  public void logThrowableAndLevelMatch(BiConsumer<Logger, Throwable> consumer, Level level) {
+  void logThrowableAndLevelMatch(BiConsumer<Logger, Throwable> consumer, Level level) {
     Throwable throwable = new Throwable();
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
@@ -75,7 +79,7 @@ public class LoggerLevelTest {
     assertTrue(marked[0]);
   }
   
-  public static Stream<Arguments> logSupplierAndLevelPairSource() {
+  private static Stream<Arguments> logSupplierAndLevelPairSource() {
     List<Entry<BiConsumer<Logger, Supplier<String>>, Level>> list = List.of(
         entry(Logger::debug,   Level.DEBUG),
         entry(Logger::error,   Level.ERROR),
@@ -86,7 +90,7 @@ public class LoggerLevelTest {
   }
   @ParameterizedTest
   @MethodSource("logSupplierAndLevelPairSource")
-  public void logSupplierAndLevelMatch(BiConsumer<Logger, Supplier<String>> consumer, Level level) {
+  void logSupplierAndLevelMatch(BiConsumer<Logger, Supplier<String>> consumer, Level level) {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
@@ -101,18 +105,18 @@ public class LoggerLevelTest {
     assertTrue(marked[0]);
   }
   
-  public static Stream<Arguments> logIntFunctionAndLevelPairSource() {
+  static Stream<Arguments> logIntFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
-        entry(l -> l.debug(Integer::toString, 1),   Level.DEBUG),
-        entry(l -> l.error(Integer::toString, 1),   Level.ERROR),
-        entry(l -> l.info(Integer::toString, 1),    Level.INFO),
-        entry(l -> l.trace(Integer::toString, 1),   Level.TRACE),
-        entry(l -> l.warning(Integer::toString, 1), Level.WARNING));
+        entry(l -> l.debug((IntFunction<String>) Integer::toString, 1),   Level.DEBUG),
+        entry(l -> l.error((IntFunction<String>) Integer::toString, 1),   Level.ERROR),
+        entry(l -> l.info((IntFunction<String>) Integer::toString, 1),    Level.INFO),
+        entry(l -> l.trace((IntFunction<String>) Integer::toString, 1),   Level.TRACE),
+        entry(l -> l.warning((IntFunction<String>) Integer::toString, 1), Level.WARNING));
     return list.stream().map(e -> Arguments.of(e.getKey(), e.getValue()));
   }
   @ParameterizedTest
   @MethodSource("logIntFunctionAndLevelPairSource")
-  public void logIntFunctionAndLevelMatch(Consumer<Logger> consumer, Level level) {
+  void logIntFunctionAndLevelMatch(Consumer<Logger> consumer, Level level) {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
@@ -126,19 +130,20 @@ public class LoggerLevelTest {
     consumer.accept(logger);
     assertTrue(marked[0]);
   }
-  
-  public static Stream<Arguments> logLongFunctionAndLevelPairSource() {
+
+
+  static Stream<Arguments> logLongFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
-        entry(l -> l.debug(Long::toString, 2L),   Level.DEBUG),
-        entry(l -> l.error(Long::toString, 2L),   Level.ERROR),
-        entry(l -> l.info(Long::toString, 2L),    Level.INFO),
-        entry(l -> l.trace(Long::toString, 2L),   Level.TRACE),
-        entry(l -> l.warning(Long::toString, 2L), Level.WARNING));
+        entry(l -> l.debug((LongFunction<String>) Long::toString, 2L),   Level.DEBUG),
+        entry(l -> l.error((LongFunction<String>) Long::toString, 2L),   Level.ERROR),
+        entry(l -> l.info((LongFunction<String>) Long::toString, 2L),    Level.INFO),
+        entry(l -> l.trace((LongFunction<String>) Long::toString, 2L),   Level.TRACE),
+        entry(l -> l.warning((LongFunction<String>) Long::toString, 2L), Level.WARNING));
     return list.stream().map(e -> Arguments.of(e.getKey(), e.getValue()));
   }
   @ParameterizedTest
   @MethodSource("logLongFunctionAndLevelPairSource")
-  public void logLongFunctionAndLevelMatch(Consumer<Logger> consumer, Level level) {
+  void logLongFunctionAndLevelMatch(Consumer<Logger> consumer, Level level) {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
@@ -152,8 +157,8 @@ public class LoggerLevelTest {
     consumer.accept(logger);
     assertTrue(marked[0]);
   }
-  
-  public static Stream<Arguments> logDoubleFunctionAndLevelPairSource() {
+
+  private static Stream<Arguments> logDoubleFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
         entry(l -> l.debug(Double::toString, 3.0),   Level.DEBUG),
         entry(l -> l.error(Double::toString, 3.0),   Level.ERROR),
@@ -164,7 +169,7 @@ public class LoggerLevelTest {
   }
   @ParameterizedTest
   @MethodSource("logDoubleFunctionAndLevelPairSource")
-  public void logDoubleFunctionAndLevelMatch(Consumer<Logger> consumer, Level level) {
+  void logDoubleFunctionAndLevelMatch(Consumer<Logger> consumer, Level level) {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
@@ -179,7 +184,7 @@ public class LoggerLevelTest {
     assertTrue(marked[0]);
   }
   
-  public static Stream<Arguments> logFunctionAndLevelPairSource() {
+  private static Stream<Arguments> logFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
         entry(l -> l.debug(x -> x, "bar"),   Level.DEBUG),
         entry(l -> l.error(x -> x, "bar"),   Level.ERROR),
@@ -190,7 +195,7 @@ public class LoggerLevelTest {
   }
   @ParameterizedTest
   @MethodSource("logFunctionAndLevelPairSource")
-  public void logFunctionAndLevelMatch(Consumer<Logger> consumer, Level level) {
+  void logFunctionAndLevelMatch(Consumer<Logger> consumer, Level level) {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
@@ -205,7 +210,7 @@ public class LoggerLevelTest {
     assertTrue(marked[0]);
   }
   
-  public static Stream<Arguments> logBiFunctionAndLevelPairSource() {
+  private static Stream<Arguments> logBiFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
         entry(l -> l.debug((a, b) -> a + b, "foo", "bar"),   Level.DEBUG),
         entry(l -> l.error((a, b) -> a + b, "foo", "bar"),   Level.ERROR),
