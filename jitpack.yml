@@ -1,8 +1,8 @@
-jdk:
- - oraclejdk9
+before_install:
+- . ./.install-jdk.sh -F 10 -L BCL
 install:
 - jshell build.jsh
-- ARTIFACTS="bin/bach"
-- JARS="-Dfile=$ARTIFACTS/beautifullogger.jar -Dsources=$ARTIFACTS/beautifullogger-sources.jar -Djavadoc=$ARTIFACTS/beautifullogger-javadoc.jar"
+- ARTIFACTS="bin/bach/target/artifacts"
+- JARS="-Dfile=$ARTIFACTS/beautiful-logger.jar -Dsources=$ARTIFACTS/beautiful-logger-sources.jar -Djavadoc=$ARTIFACTS/beautiful-logger-javadoc.jar"
 - find $ARTIFACTS
 - mvn install:install-file $JARS -DgroupId=$GROUP -DartifactId=beautifullogger -Dversion=$VERSION -Dpackaging=jar -DgeneratePom=true

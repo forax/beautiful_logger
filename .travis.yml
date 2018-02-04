@@ -1,0 +1,20 @@
+sudo: false
+dist: trusty
+language: java
+
+# https://github.com/travis-ci/travis-ci/issues/8408
+before_install:
+  - unset _JAVA_OPTIONS
+
+matrix:
+  include:
+    - env: JDK_RELEASE='OracleJDK 10'
+      install: . ./.install-jdk.sh -F 10 -L BCL
+    - env: JDK_RELEASE='OpenJDK 10'
+      install: . ./.install-jdk.sh -F 10 -L GPL
+  allow_failures:
+    - env: JDK_RELEASE='OpenJDK 10'
+
+script:
+- java --version
+- ./build.jsh
