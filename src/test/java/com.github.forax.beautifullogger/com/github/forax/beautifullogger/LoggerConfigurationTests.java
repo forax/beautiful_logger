@@ -48,7 +48,7 @@ class LoggerConfigurationTests {
   void loggerEnableThenDisable() {
     Class<?> clazz = new Object() {/*empty*/}.getClass();
     class MyPrinter implements Printer {
-      private boolean disable;
+      boolean disable;
       
       @Override
       public void print(String message, Level level, Throwable context) {
