@@ -14,3 +14,31 @@ This library required Java 9 and obviously is fully Java 9 compatible.
 - dynamic configuration/re-configuration without using slow dependency injection libs
 - no configuration file, no XML, etc, everything is done programmatically
 - very small modular jar
+
+## Build Tool Integration
+
+Get latest binary distribution via [JitPack](https://jitpack.io/#forax/beautiful_logger) 
+
+### Maven
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+    <dependency>
+        <groupId>com.github.forax</groupId>
+        <artifactId>beautiful_logger</artifactId>
+        <version>master-SNAPSHOT</version>
+    </dependency>
+
+### Gradle
+
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+    dependencies {
+            compile 'com.github.forax:beautiful_logger:master-SNAPSHOT'
+    }
