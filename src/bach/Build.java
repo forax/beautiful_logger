@@ -1,3 +1,4 @@
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +27,7 @@ interface Build {
 		jar();
 		jdeps();
 		compileTest();
+		showTestModuleResolution();
 		test();
 	}
 
@@ -69,11 +71,21 @@ interface Build {
 		javac.run();
 	}
 
+	static void showTestModuleResolution() {
+		Bach.run("java",
+				"--show-module-resolution",
+				"--module-path", TARGET_TEST + File.pathSeparator + MODULES,
+				"--add-modules", "ALL-MODULE-PATH",
+				"--module", "org.junit.platform.console",
+				"--scan-modules"
+		);
+	}
+
 	static void test() {
 		System.out.printf("%n[test]%n%n");
 		var java = new Bach.JdkTool.Java();
 		java.modulePath = List.of(TARGET_TEST, MODULES);
-		java.addModules = List.of("ALL-MODULE-PATH");
+		java.addModules = List.of("com.github.forax.beautifullogger", "java.scripting");
 		java.module = "org.junit.platform.console";
 		java.args = List.of("--scan-modules");
 		java.run();
@@ -82,8 +94,7 @@ interface Build {
 	static void javadoc() throws Exception {
 		System.out.printf("%n[javadoc]%n%n");
 		Files.createDirectories(JAVADOC);
-		Bach.run(
-				"javadoc",
+		Bach.run("javadoc",
 				"-html5",
 				"-quiet",
 				"-Xdoclint:all,-missing",
