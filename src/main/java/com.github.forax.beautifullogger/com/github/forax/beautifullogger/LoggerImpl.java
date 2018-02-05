@@ -49,6 +49,7 @@ class LoggerImpl {
   }
   static final Object NONE = new None();
   
+  // used internally by Logger, should not be visible
   static final Consumer<ConfigOption> EMPTY_CONSUMER = __ -> { /* empty */ };
   
   private LoggerImpl() {
@@ -126,7 +127,7 @@ class LoggerImpl {
       }
       
       // avoid recursion (i.e. non progression) if the switch points are invalidated
-      // between the time the configuration is read and the time the method handle is evaluated
+      // between the time the configuration is read and the time the method handle is installed
       MethodHandle result = target;
       
       // prepend switch points
@@ -238,11 +239,6 @@ class LoggerImpl {
       setTarget(guard);
       
       return target;
-    }
-    
-    @SuppressWarnings("unused")
-    private static boolean typecheck(Object partial, Object messageProvider) {
-      return partial == messageProvider;
     }
   }
   
