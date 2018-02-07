@@ -292,66 +292,6 @@ class LoggerImpl {
     return new UndeclaredThrowableException(e);
   }
   
-  /*
-  private static class FormatInfo {
-    final String template;
-    final List<Class<?>> types;
-    
-    private FormatInfo(String template, List<Class<?>> types) {
-      this.template = template;
-      this.types = types;
-    }
-    
-    static FormatInfo parseFormat(String format) {
-      ArrayList<Class<?>> types = new ArrayList<>();
-      StringBuilder template = new StringBuilder();
-      int length = format.length();
-      for(int i = 0; i < length;) {
-        char c = format.charAt(i++); 
-        if (c == '%') {
-          if (i == length) {
-            throw new IllegalArgumentException("invalid format, last % should be followed by another character");
-          }
-          c = format.charAt(i++);
-          if (c == '%') { // escape
-            template.append('%');
-            continue;
-          } 
-          Class<?> type = symbol(c);
-          if (type == null) {
-            throw new IllegalArgumentException("invalid format, character " + c + " at " + i);
-          }
-          types.add(type);
-          template.append('\0');
-        } else {
-          template.append(c);
-        }
-      }
-      return new FormatInfo(template.toString(), types);
-    }
-    
-    private static Class<?> symbol(char c) {
-      switch(c) {
-      case 'b':
-        return boolean.class;
-      case 'c':
-        return char.class;
-      case 'i':
-        return int.class;
-      case 'l':
-        return long.class;
-      case 'f':
-        return float.class;
-      case 'd':
-        return double.class;
-      default:
-        return null;
-      }
-    }
-  }
-  */
-  
-
   enum LoggerConfigKind {
     CLASS(Class::getName),
     PACKAGE(Class::getPackageName),
