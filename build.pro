@@ -3,12 +3,14 @@ import static com.github.forax.pro.builder.Builders.*;
 
 packager.
     moduleMetadata(list(
-        "com.github.forax.beautifullogger@1.0"
+        "com.github.forax.beautifullogger@1.0",
+        "com.github.forax.beautifullogger.tool@1.0"
     ))
 
 
 resolver.
     dependencies(list(
+        "org.objectweb.asm=org.ow2.asm:asm:6.0",
         "org.junit.jupiter.api=org.junit.jupiter:junit-jupiter-api:5.0.3",
         "org.junit.jupiter.params=org.junit.jupiter:junit-jupiter-params:5.0.3",
         "org.junit.platform.commons=org.junit.platform:junit-platform-commons:1.0.3",

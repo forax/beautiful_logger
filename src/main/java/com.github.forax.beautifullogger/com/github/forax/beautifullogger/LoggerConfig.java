@@ -51,6 +51,7 @@ public interface LoggerConfig {
       return configClass -> target.bindTo(System.getLogger(configClass.getName()));
     }
     
+    @SuppressWarnings("unused")
     private static System.Logger.Level level(Level level) {
       // do not use a switch here, we want this code to be inlined !
       if (level == Level.ERROR) {
