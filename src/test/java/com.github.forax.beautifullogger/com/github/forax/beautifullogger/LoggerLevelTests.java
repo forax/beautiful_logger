@@ -1,5 +1,6 @@
 package com.github.forax.beautifullogger;
 
+import static com.github.forax.beautifullogger.LoggerConfig.PrintFactory.printer;
 import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,13 +41,13 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.level(Level.TRACE).printer((message, loggerLevel, context) -> {
+        opt -> opt.level(Level.TRACE).printFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
             () -> assertEquals("hello", message),
             () -> assertNull(context));
-        }));
+        })));
     consumer.accept(logger); 
     assertTrue(marked[0]);
   }
@@ -67,13 +68,13 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.level(Level.TRACE).printer((message, loggerLevel, context) -> {
+        opt -> opt.level(Level.TRACE).printFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
             () -> assertEquals("exception", message),
             () -> assertSame(throwable, context));
-        }));
+        })));
     consumer.accept(logger, throwable);
     assertTrue(marked[0]);
   }
@@ -93,13 +94,13 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.level(Level.TRACE).printer((message, loggerLevel, context) -> {
+        opt -> opt.level(Level.TRACE).printFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
             () -> assertEquals("foo", message),
             () -> assertNull(context));
-        }));
+        })));
     consumer.accept(logger, () -> "foo"); 
     assertTrue(marked[0]);
   }
@@ -119,13 +120,13 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.level(Level.TRACE).printer((message, loggerLevel, context) -> {
+        opt -> opt.level(Level.TRACE).printFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
             () -> assertEquals("1", message),
             () -> assertNull(context));
-        }));
+        })));
     consumer.accept(logger);
     assertTrue(marked[0]);
   }
@@ -146,13 +147,13 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.level(Level.TRACE).printer((message, loggerLevel, context) -> {
+        opt -> opt.level(Level.TRACE).printFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
             () -> assertEquals("2", message),
             () -> assertNull(context));
-        }));
+        })));
     consumer.accept(logger);
     assertTrue(marked[0]);
   }
@@ -172,13 +173,13 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.level(Level.TRACE).printer((message, loggerLevel, context) -> {
+        opt -> opt.level(Level.TRACE).printFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
             () -> assertEquals("3.0", message),
             () -> assertNull(context));
-        }));
+        })));
     consumer.accept(logger);
     assertTrue(marked[0]);
   }
@@ -198,13 +199,13 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.level(Level.TRACE).printer((message, loggerLevel, context) -> {
+        opt -> opt.level(Level.TRACE).printFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
             () -> assertEquals("bar", message),
             () -> assertNull(context));
-        }));
+        })));
     consumer.accept(logger); 
     assertTrue(marked[0]);
   }
@@ -224,13 +225,13 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.level(Level.TRACE).printer((message, loggerLevel, context) -> {
+        opt -> opt.level(Level.TRACE).printFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
             () -> assertEquals("foobar", message),
             () -> assertNull(context));
-        }));
+        })));
     consumer.accept(logger); 
     assertTrue(marked[0]);
   }

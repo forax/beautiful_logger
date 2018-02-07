@@ -1,5 +1,6 @@
 package com.github.forax.beautifullogger;
 
+import static com.github.forax.beautifullogger.LoggerConfig.PrintFactory.printer;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -42,22 +43,22 @@ class LoggerServiceSPITests {
     MethodLoggerService service = MethodLoggerService.getService();
     LoggerConfig config = LoggerConfig.fromClass(MethodLoggerService.class);
     
-    config.update(opt -> opt.printer((message, level, context) -> {
+    config.update(opt -> opt.printFactory(printer((message, level, context) -> {
       assertAll(  
         () -> assertEquals(Level.INFO, level),
         () -> assertEquals("enter", message),
         () -> assertNull(context)
         );
-    }));
+    })));
     service.logEnter();
     
-    config.update(opt -> opt.printer((message, level, context) -> {
+    config.update(opt -> opt.printFactory(printer((message, level, context) -> {
       assertAll(  
         () -> assertEquals(Level.INFO, level),
         () -> assertEquals("exit", message),
         () -> assertNull(context)
         );
-    }));
+    })));
     service.logExit();
   }
   
@@ -97,26 +98,26 @@ class LoggerServiceSPITests {
         .update(opt -> opt.level(Level.TRACE));
     
     boolean[] called1 = { false };
-    config.update(opt -> opt.printer((message, level, context) -> {
+    config.update(opt -> opt.printFactory(printer((message, level, context) -> {
       called1[0] = true;
       assertAll(  
         () -> assertEquals(Level.TRACE, level),
         () -> assertEquals("bob authorized", message),
         () -> assertNull(context)
         );
-    }));
+    })));
     service.authorized(People.bob);
     assertTrue(called1[0]);
     
     boolean[] called2 = { false };
-    config.update(opt -> opt.printer((message, level, context) -> {
+    config.update(opt -> opt.printFactory(printer((message, level, context) -> {
       called2[0] = true;
       assertAll(  
         () -> assertEquals(Level.INFO, level),
         () -> assertEquals("amy unauthorized invalid password", message),
         () -> assertNull(context)
         );
-    }));
+    })));
     service.unauthorized(People.amy, "invalid password");
     assertTrue(called2[0]);
   }

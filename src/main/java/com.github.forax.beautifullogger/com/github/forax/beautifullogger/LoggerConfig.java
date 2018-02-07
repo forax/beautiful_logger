@@ -4,24 +4,51 @@ import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.CLASS
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.MODULE;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.PACKAGE;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.github.forax.beautifullogger.Logger.Level;
 
 public interface LoggerConfig {
+  @FunctionalInterface
   interface Printer {
     void print(String message, Level level, Throwable context);
+  }
+  
+  @FunctionalInterface
+  interface PrintFactory {
+    MethodHandle getPrintMethodHandle(Class<?> configClass);
     
-    static Printer system(System.Logger logger) {
-      return (message, level, context) -> {
-        System.Logger.Level systemLevel = level(level);
-        if (context != null) {
-          logger.log(systemLevel, message, context);
-        } else {
-          logger.log(systemLevel, message);
-        }
-      };
+    static PrintFactory printer(Printer printer) {
+      MethodHandle mh;
+      try {
+        mh = MethodHandles.lookup().findVirtual(Printer.class, "print",
+            MethodType.methodType(void.class, String.class, Level.class, Throwable.class)); 
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+      MethodHandle target = mh.bindTo(printer);
+      return __ -> target;
+    }
+    
+    static PrintFactory systemLogger() {
+      MethodHandle mh, filter;
+      try {
+        mh = MethodHandles.publicLookup().findVirtual(System.Logger.class, "log",
+            MethodType.methodType(void.class, System.Logger.Level.class, String.class, Throwable.class));
+        filter = MethodHandles.lookup().findStatic(PrintFactory.class, "level",
+            MethodType.methodType(System.Logger.Level.class, Level.class)); 
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+      mh = MethodHandles.filterArguments(mh, 1, filter);
+      MethodHandle target = MethodHandles.permuteArguments(mh,
+          MethodType.methodType(void.class, System.Logger.class, String.class, Level.class, Throwable.class),
+          new int[] { 0, 2, 1, 3});
+      return configClass -> target.bindTo(System.getLogger(configClass.getName()));
     }
     
     private static System.Logger.Level level(Level level) {
@@ -49,15 +76,17 @@ public interface LoggerConfig {
     }
   }
   
+  
+  
   interface ConfigOption {
     ConfigOption enable(boolean enable);
     ConfigOption level(Level level);
-    ConfigOption printer(Printer printer);
+    ConfigOption printFactory(PrintFactory factory);
   }
   
   Optional<Boolean> enable();
   Optional<Level> level();
-  Optional<Printer> printer();
+  Optional<PrintFactory> printFactory();
   
   LoggerConfig update(Consumer<? super ConfigOption> configUpdater);
   

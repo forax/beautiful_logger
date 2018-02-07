@@ -2,7 +2,7 @@ package com.github.forax.beautifullogger;
 
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.ENABLE_CONF;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.LEVEL_CONF;
-import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.PRINTER_CONF;
+import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.PRINTFACTORY_CONF;
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.invoke.MethodHandles.empty;
 import static java.lang.invoke.MethodHandles.exactInvoker;
@@ -40,7 +40,7 @@ import java.util.function.Supplier;
 
 import com.github.forax.beautifullogger.Logger.Level;
 import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
-import com.github.forax.beautifullogger.LoggerConfig.Printer;
+import com.github.forax.beautifullogger.LoggerConfig.PrintFactory;
 
 class LoggerImpl {
   private static class None {
@@ -61,13 +61,12 @@ class LoggerImpl {
   }
   
   private static class CS extends MutableCallSite {
-    private static final MethodHandle FALLBACK, PRINTER_PRINT;
+    private static final MethodHandle FALLBACK;
     private static final MethodHandle[] CHECK_LEVELS;
     static {
       Lookup lookup = lookup();
       try {
         FALLBACK = lookup.findVirtual(CS.class, "fallback", methodType(MethodHandle.class, Level.class,  Throwable.class, Object.class, Object[].class));
-        PRINTER_PRINT = lookup.findVirtual(Printer.class, "print", methodType(void.class, String.class, Level.class, Throwable.class));
         
         MethodHandle[] checkLevels = new MethodHandle[Level.LEVELS.length];
         for(int i = 0; i < checkLevels.length; i++) {
@@ -104,11 +103,11 @@ class LoggerImpl {
       MethodHandle target;
       MethodHandle empty = empty(type());
       if (enable) {
-        // get configuration 'printer' 
-        Printer printer = PRINTER_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints)
-            .orElseGet(() -> Printer.system(System.getLogger(configClass.getName())));
+        // get configuration 'printFactory' 
+        PrintFactory printFactory = PRINTFACTORY_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints)
+            .orElseGet(() -> PrintFactory.systemLogger());
         MethodHandle print = dropArguments(
-            PRINTER_PRINT.bindTo(printer),
+            printFactory.getPrintMethodHandle(configClass),
             3, nCopies(1 + maxParameters, Object.class));
         
         // create the message provider call site, we already have the arguments of the first call here,
@@ -373,7 +372,7 @@ class LoggerImpl {
   static class LoggerConfigFeature<T> {
     static final LoggerConfigFeature<Boolean> ENABLE_CONF = new LoggerConfigFeature<>(LoggerConfig::enable);
     static final LoggerConfigFeature<Level> LEVEL_CONF = new LoggerConfigFeature<>(LoggerConfig::level);
-    static final LoggerConfigFeature<Printer> PRINTER_CONF = new LoggerConfigFeature<>(LoggerConfig::printer);
+    static final LoggerConfigFeature<PrintFactory> PRINTFACTORY_CONF = new LoggerConfigFeature<>(LoggerConfig::printFactory);
     
     private final Function<LoggerConfigImpl, Optional<T>> extractor;
     
@@ -408,8 +407,8 @@ class LoggerImpl {
         return this;
       }
       @Override
-      public ConfigOption printer(Printer printer) {
-        LoggerConfigImpl.this.printer = Objects.requireNonNull(printer);
+      public ConfigOption printFactory(PrintFactory printFactory) {
+        LoggerConfigImpl.this.printFactory = Objects.requireNonNull(printFactory);
         return this;
       }
     }
@@ -419,7 +418,7 @@ class LoggerImpl {
     
     volatile Boolean enable; // nullable
     volatile Level level;    // nullable
-    volatile Printer printer;  // nullable
+    volatile PrintFactory printFactory;  // nullable
 
     LoggerConfigImpl() {
       synchronized(lock) {
@@ -436,8 +435,8 @@ class LoggerImpl {
       return Optional.ofNullable(level);
     }
     @Override
-    public Optional<Printer> printer() {
-      return Optional.ofNullable(printer);
+    public Optional<PrintFactory> printFactory() {
+      return Optional.ofNullable(printFactory);
     }
     
     SwitchPoint switchPoint() {

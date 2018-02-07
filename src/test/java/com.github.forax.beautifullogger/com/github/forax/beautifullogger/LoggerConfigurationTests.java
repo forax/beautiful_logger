@@ -2,6 +2,7 @@ package com.github.forax.beautifullogger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static com.github.forax.beautifullogger.LoggerConfig.PrintFactory.printer;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -18,9 +19,9 @@ class LoggerConfigurationTests {
   void loggerDisableAtCreationTime() {
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.enable(false).printer((message, loggerLevel, context) -> {
+        opt -> opt.enable(false).printFactory(printer((message, loggerLevel, context) -> {
           fail("logger shouble be disable");
-        }));
+        })));
     logger.debug("exception", null);
     logger.error("exception", null);
     logger.info("exception", null);
@@ -33,9 +34,9 @@ class LoggerConfigurationTests {
     Class<?> clazz = new Object() {/*empty*/}.getClass(); 
     Logger logger = Logger.getLogger(
         clazz,
-        opt -> opt.printer((message, loggerLevel, context) -> {
+        opt -> opt.printFactory(printer((message, loggerLevel, context) -> {
           fail("logger shouble be disable");
-        }));
+        })));
     LoggerConfig.fromClass(clazz).update(opt -> opt.enable(false));
     logger.debug("exception", null);
     logger.error("exception", null);
@@ -63,7 +64,7 @@ class LoggerConfigurationTests {
       }
     }
     MyPrinter printer = new MyPrinter();
-    Logger logger = Logger.getLogger(clazz, opt -> opt.printer(printer));
+    Logger logger = Logger.getLogger(clazz, opt -> opt.printFactory(printer(printer)));
     
     for(int i = 0; i < 100_000; i++) {
       logger.error(() -> "message");
