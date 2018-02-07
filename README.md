@@ -1,10 +1,10 @@
 # beautiful_logger
 Yet another logger API in Java with beautiful features
 
-Technically it's not a new logging API but more a wrapper (like SLF4J) around any logging libraries you want to use.
-With Java 9 comes the new shiny Java System.Logger API ([JEP 264](http://openjdk.java.net/jeps/264)) that allow
-to plug any library (any LoggerFinder) as a backend.
-This API is a mostly-zero-overhead wrapper on top the System.Logger API with a familiar (info, error, etc)
+With Java 9 comes with the Java System.Logger API ([JEP 264](http://openjdk.java.net/jeps/264))
+that allows to plug any logging libraries (any LoggerFinder) as a backend but defined a straw API.
+
+beautiful_logger is a mostly-zero-overhead wrapper on top the System.Logger API with a familiar API (info, error, etc)
 that let you configure/re-configure the logger dynamically in a programmatic way.
 
 This library required Java 9 and obviously is fully Java 9 compatible.
@@ -28,7 +28,7 @@ Because no other existing logging libraries provide at least one of features lis
 
 The implementation of this API ensure that the JIT can fully inline any calls to the Logger API without decrementing your inlining budget.
 This is similar to the way, MethodHandle or VarHandle are optimized in the JDK.
-The main drawbacks is that it put more pressure to the JITs so it may lengthen the time to steady state of an application.
+The main drawback is that it put more pressure to the JITs so it may lengthen the time to steady state of an application.
 
 
 ## Build Tool Integration
