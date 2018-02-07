@@ -89,6 +89,8 @@ public class LoggerGenerator {
         MethodVisitor mv = writer.visitMethod(access & (~ACC_ABSTRACT), name, desc, signature, exceptions);
         mv.visitAnnotation("Ljava/lang/invoke/LambdaForm$Hidden;", true)
           .visitEnd();
+        mv.visitAnnotation("Ljdk/internal/vm/annotation/ForceInline;", true)
+          .visitEnd();
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, "com/github/forax/beautifullogger/Logger$Stub", "mh",
