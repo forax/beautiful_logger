@@ -1,8 +1,11 @@
 before_install:
 - . ./.install-jdk.sh -F 10 -L BCL
+- wget --no-check-certificate https://github.com/forax/pro/releases/download/v0.9.181b/pro-9-b181b-linux.tar.gz
+- tar -xzf pro-9-b181b-linux.tar.gz
+
 install:
-- jshell build.jsh
-- ARTIFACTS="bin/bach/target/artifacts"
+- ./pro/bin/pro
+- ARTIFACTS="target/main/artifact"
 - JARS="-Dfile=$ARTIFACTS/beautiful-logger.jar -Dsources=$ARTIFACTS/beautiful-logger-sources.jar -Djavadoc=$ARTIFACTS/beautiful-logger-javadoc.jar"
 - find $ARTIFACTS
 - mvn install:install-file $JARS -DgroupId=$GROUP -DartifactId=beautifullogger -Dversion=$VERSION -Dpackaging=jar -DgeneratePom=true
