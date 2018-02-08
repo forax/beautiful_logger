@@ -18,14 +18,12 @@ import com.github.forax.beautifullogger.Logger.Level;
 
 @SuppressWarnings("static-method")
 class LoggerServiceSPITests {
-  interface MethodLoggerService {
-    void log(Level level, Throwable context, Object messageProvider, Object arg0, Object arg1, Object arg2, Object arg3);
-    
+  interface MethodLoggerService extends Logger {
     default void logEnter() {
-      log(Level.INFO, null, "enter", NONE, NONE, NONE, NONE);
+      info("enter", null);
     }
     default void logExit() {
-      log(Level.INFO, null, "exit", NONE, NONE, NONE, NONE);
+      info("exit", null);
     }
     
     static MethodLoggerService getService() {
