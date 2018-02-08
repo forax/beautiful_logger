@@ -26,7 +26,7 @@ Because no other existing logging libraries provide at least one of features lis
 
 ## Why do you claim that there is no overhead ?
 
-The implementation of this API ensure that the JIT can fully inline any calls to the Logger API without decrementing your inlining budget.
+The implementation of this API ensures that the JIT can fully inline any calls to the Logger API without decrementing your inlining budget.
 This is similar to the way, MethodHandle or VarHandle are optimized in the JDK.
 The main drawback is that it put more pressure to the JITs so it may lengthen the time to steady state of an application.
 
