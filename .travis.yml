@@ -11,6 +11,6 @@ install:
   - tar -xzf pro-10.b42-linux.tar.gz
 
 script:
-- java --version
+- ./pro/bin/pro version
 - ./pro/bin/pro
 
