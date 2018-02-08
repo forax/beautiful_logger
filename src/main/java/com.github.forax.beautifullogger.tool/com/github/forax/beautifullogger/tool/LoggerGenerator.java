@@ -44,7 +44,7 @@ public class LoggerGenerator {
   public static void main(String[] args) throws IOException {
     ClassWriter writer = new ClassWriter(COMPUTE_MAXS|COMPUTE_MAXS);
     
-    // reserve slot 1
+    // reserve slot 1 of the constant pool (see LoggerServiceSPI)
     writer.newClass("com/github/forax/beautifullogger/Logger");
     
     writer.visit(V9, ACC_SUPER,
