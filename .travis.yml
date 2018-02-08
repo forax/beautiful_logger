@@ -6,20 +6,9 @@ language: java
 before_install:
   - unset _JAVA_OPTIONS
 
-matrix:
-  include:
-    - env: JDK_RELEASE='OracleJDK 10'
-      install: 
-        - . ./.install-jdk.sh -F 10 -L BCL
-        - wget --no-check-certificate https://github.com/forax/pro/releases/download/v0.9.181b/pro-9-b181b-linux.tar.gz
-        - tar -xzf pro-9-b181b-linux.tar.gz
-    - env: JDK_RELEASE='OpenJDK 10'
-      install: 
-        - . ./.install-jdk.sh -F 10 -L GPL
-        - wget --no-check-certificate https://github.com/forax/pro/releases/download/v0.9.181b/pro-9-b181b-linux.tar.gz
-        - tar -xzf pro-9-b181b-linux.tar.gz
-  allow_failures:
-    - env: JDK_RELEASE='OpenJDK 10'
+install: 
+  - wget --no-check-certificate https://github.com/forax/pro/releases/download/v0.10.42/pro-10.b42-linux.tar.gz
+  - tar -xzf pro-10.b42-linux.tar.gz
 
 script:
 - java --version
