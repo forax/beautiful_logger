@@ -43,6 +43,10 @@ import org.objectweb.asm.Type;
 public class LoggerGenerator {
   public static void main(String[] args) throws IOException {
     ClassWriter writer = new ClassWriter(COMPUTE_MAXS|COMPUTE_MAXS);
+    
+    // reserve slot 1
+    writer.newClass("com/github/forax/beautifullogger/Logger");
+    
     writer.visit(V9, ACC_SUPER,
         "com/github/forax/beautifullogger/Logger$Stub", null,
         "java/lang/Object",
@@ -95,9 +99,18 @@ public class LoggerGenerator {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, "com/github/forax/beautifullogger/Logger$Stub", "mh",
             "Ljava/lang/invoke/MethodHandle;");
-        mv.visitFieldInsn(GETSTATIC, "com/github/forax/beautifullogger/Logger$Level", name.toUpperCase(),
-            "Lcom/github/forax/beautifullogger/Logger$Level;");
+        
+        if (!name.equals("log")) {
+          mv.visitFieldInsn(GETSTATIC, "com/github/forax/beautifullogger/Logger$Level", name.toUpperCase(),
+              "Lcom/github/forax/beautifullogger/Logger$Level;");
+        }
+        
         switch(Type.getArgumentTypes(desc)[0].getDescriptor()) {
+          case "Lcom/github/forax/beautifullogger/Logger$Level;":  // log
+            for(int i = 0; i < 7; i++) {
+              mv.visitVarInsn(ALOAD, i + 1);
+            }
+            break;
           case "Ljava/lang/String;":  // message + throwable
             mv.visitVarInsn(ALOAD, 2);
             mv.visitVarInsn(ALOAD, 1);

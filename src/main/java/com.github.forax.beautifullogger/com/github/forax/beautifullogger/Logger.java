@@ -19,6 +19,8 @@ public interface Logger {
     static final Level[] LEVELS = values();
   }
   
+  void log(Level level, Throwable context, Object messageProvider, Object arg0, Object arg1, Object arg2, Object arg3);
+  
   void error(String message, Throwable context);
   void error(Supplier<String> messageProvider);
   <T> void error(Function<? super T, String> messageProvider, T arg0);

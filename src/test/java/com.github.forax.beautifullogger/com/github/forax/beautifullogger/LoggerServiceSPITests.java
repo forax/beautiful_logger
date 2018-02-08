@@ -1,41 +1,35 @@
 package com.github.forax.beautifullogger;
 
 import static com.github.forax.beautifullogger.LoggerConfig.PrintFactory.printer;
+import static com.github.forax.beautifullogger.LoggerServiceSPI.NONE;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.forax.beautifullogger.LoggerConfig;
-import com.github.forax.beautifullogger.LoggerServiceSPI;
-import com.github.forax.beautifullogger.Logger.Level;
-import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.security.Principal;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
 import org.junit.jupiter.api.Test;
+
+import com.github.forax.beautifullogger.Logger.Level;
 
 @SuppressWarnings("static-method")
 class LoggerServiceSPITests {
   interface MethodLoggerService {
-    void log(Level level, Throwable context, Object messageProvider);
+    void log(Level level, Throwable context, Object messageProvider, Object arg0, Object arg1, Object arg2, Object arg3);
     
     default void logEnter() {
-      log(Level.INFO, null, "enter");
+      log(Level.INFO, null, "enter", NONE, NONE, NONE, NONE);
     }
     default void logExit() {
-      log(Level.INFO, null, "exit");
+      log(Level.INFO, null, "exit", NONE, NONE, NONE, NONE);
     }
     
     static MethodLoggerService getService() {
-      MethodHandle mh = LoggerServiceSPI.getLoggingMethodHandle(MethodLoggerService.class, 0);
-      return (level, context, messageProvider) -> {
-        try {
-          mh.invokeExact(level, context, messageProvider);
-        } catch(Throwable t) {
-          throw LoggerServiceSPI.rethrow(t);
-        }
-      };
+      return LoggerServiceSPI.getService(MethodHandles.lookup(), MethodLoggerService.class);
     }
   }
   @Test
@@ -63,24 +57,17 @@ class LoggerServiceSPITests {
   }
   
   interface AuthLoggerService {
-    void print(Level level, Throwable context, Object messageProvider, Object arg0, Object arg1);
+    void log(Level level, Throwable context, Object messageProvider, Object arg0, Object arg1, Object arg2, Object arg3);
     
     default void authorized(Principal principal) {
-      print(Level.TRACE, null, (Function<Principal, String>)p -> p + " authorized", principal, LoggerServiceSPI.NONE);
+      log(Level.TRACE, null, (Function<Principal, String>)p -> p + " authorized", principal, NONE, NONE, NONE);
     }
     default void unauthorized(Principal principal, String reason) {
-      print(Level.INFO, null, (BiFunction<Principal, String, String>)(p, r) -> p + " unauthorized " + r, principal, reason);
+      log(Level.INFO, null, (BiFunction<Principal, String, String>)(p, r) -> p + " unauthorized " + r, principal, reason, NONE, NONE);
     }
     
     static AuthLoggerService getService() {
-      MethodHandle mh = LoggerServiceSPI.getLoggingMethodHandle(AuthLoggerService.class, 2);
-      return (level, context, messageProvider, arg0, arg1) -> {
-        try {
-          mh.invokeExact(level, context, messageProvider, arg0, arg1);
-        } catch(Throwable t) {
-          throw LoggerServiceSPI.rethrow(t);
-        }
-      };
+      return LoggerServiceSPI.getService(MethodHandles.lookup(), AuthLoggerService.class);
     }
   }
   enum People implements Principal {
