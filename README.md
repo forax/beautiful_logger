@@ -31,6 +31,30 @@ This is similar to the way, MethodHandle or VarHandle are optimized in the JDK.
 The main drawback is that it put more pressure to the JITs so it may lengthen the time to steady state of an application.
 
 
+## Example
+
+```java
+import com.github.forax.beautifullogger.Logger;
+
+class Example {
+  // getLogger with no argument uses the current class as configuration
+  private static final Logger LOGGER = Logger.getLogger();
+  
+  public static void main(String[] args) {
+    for(int i = 0; i < 10; i++) {
+      // use a lambda that do not capture any parameters 
+      LOGGER.error((int value) -> "message " + value, i);
+      
+      if (i == 1) {
+        // disable the logger programmatically
+        LoggerConfig.fromClass(Example.class)
+          .update(opt -> opt.enable(false));
+      }
+    }
+  }
+}
+```
+
 ## Build Tool Integration [![](https://jitpack.io/v/forax/beautiful_logger.svg)](https://jitpack.io/#forax/beautiful_logger)
 
 Get latest binary distribution via [JitPack](https://jitpack.io/#forax/beautiful_logger) 
