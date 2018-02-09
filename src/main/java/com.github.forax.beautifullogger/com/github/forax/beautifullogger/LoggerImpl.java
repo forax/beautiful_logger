@@ -110,7 +110,9 @@ class LoggerImpl {
       if (enable) {
         // get configuration 'printFactory' 
         PrintFactory printFactory = PRINTFACTORY_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints)
-            .orElseGet(() -> PrintFactory.systemLogger());
+            .orElseGet(PrintFactory::systemLogger);
+        
+        //FIXME verify the method type of return value of getPrintMethodHandle
         MethodHandle print = dropArguments(
             printFactory.getPrintMethodHandle(configClass),
             3, nCopies(1 + maxParameters, Object.class));
