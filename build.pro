@@ -3,10 +3,9 @@ import static com.github.forax.pro.builder.Builders.*;
 
 packager.
     moduleMetadata(list(
-        "com.github.forax.beautifullogger@1.0",
-        "com.github.forax.beautifullogger.tool@1.0"
+        "com.github.forax.beautifullogger@0.9.3",
+        "com.github.forax.beautifullogger.tool@0.9.3"
     ))
-
 
 resolver.
     dependencies(list(
@@ -17,9 +16,6 @@ resolver.
         "org.apiguardian.api=org.apiguardian:apiguardian-api:1.0.0",
         "org.opentest4j=org.opentest4j:opentest4j:1.0.0"
     ))
-
-docer.
-  rawArguments(list("-html5"))
 
 run(resolver, modulefixer, compiler, docer, packager, tester)
 
