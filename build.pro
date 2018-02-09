@@ -20,6 +20,6 @@ resolver.
         "org.opentest4j=org.opentest4j:opentest4j:1.0.0"
     ))
 
-run(resolver, modulefixer, compiler, docer, packager, tester)
+run(resolver, modulefixer, compiler, packager, tester, docer)
 
 /exit
