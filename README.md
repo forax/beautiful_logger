@@ -55,6 +55,8 @@ class Example {
 }
 ```
 
+The [javadoc](https://jitpack.io/com/github/forax/beautiful_logger/0.9.4/javadoc/) of version 0.9.4 is available online.
+
 ## Build Tool Integration [![](https://jitpack.io/v/forax/beautiful_logger.svg)](https://jitpack.io/#forax/beautiful_logger)
 
 Get latest binary distribution via [JitPack](https://jitpack.io/#forax/beautiful_logger) 
