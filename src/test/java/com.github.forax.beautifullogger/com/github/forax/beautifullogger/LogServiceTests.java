@@ -1,10 +1,11 @@
 package com.github.forax.beautifullogger;
 
 import static com.github.forax.beautifullogger.LoggerConfig.PrintFactory.printer;
-import static com.github.forax.beautifullogger.LoggerServiceSPI.NONE;
+import static com.github.forax.beautifullogger.LogService.NONE;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.invoke.MethodHandles;
@@ -15,9 +16,10 @@ import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 
 import com.github.forax.beautifullogger.Logger.Level;
+import com.github.forax.beautifullogger.LogService;
 
 @SuppressWarnings("static-method")
-class LoggerServiceSPITests {
+class LogServiceTests {
   interface MethodLoggerService extends Logger {
     default void logEnter() {
       info("enter", null);
@@ -27,7 +29,7 @@ class LoggerServiceSPITests {
     }
     
     static MethodLoggerService getService() {
-      return LoggerServiceSPI.getService(MethodHandles.lookup(), MethodLoggerService.class);
+      return LogService.getService(MethodHandles.lookup(), MethodLoggerService.class);
     }
   }
   @Test
@@ -65,7 +67,7 @@ class LoggerServiceSPITests {
     }
     
     static AuthLoggerService getService() {
-      return LoggerServiceSPI.getService(MethodHandles.lookup(), AuthLoggerService.class);
+      return LogService.getService(MethodHandles.lookup(), AuthLoggerService.class);
     }
   }
   enum People implements Principal {
@@ -105,5 +107,32 @@ class LoggerServiceSPITests {
     })));
     service.unauthorized(People.amy, "invalid password");
     assertTrue(called2[0]);
+  }
+  
+  @Test
+  void testLoggerService() {
+    Class<?> localClass = new Object() { /* empty */}.getClass();
+    LogService service = LogService.getService(MethodHandles.lookup(), LogService.class, localClass);
+    
+    boolean[] called1 = { false };
+    LoggerConfig.fromClass(localClass).update(opt -> opt.printFactory(printer((message, level, context) -> {
+      called1[0] = true;
+      assertAll(  
+        () -> assertEquals(Level.ERROR, level),
+        () -> assertEquals("logger service test", message),
+        () -> assertNull(context)
+        );
+    })));
+    service.log(Level.ERROR, null, "logger service test", NONE, NONE, NONE, NONE);
+    assertTrue(called1[0]);
+  }
+  
+  interface BadServiceInterface {
+    void foo();
+  }
+  @Test
+  void testBadLoggerService() {
+    BadServiceInterface service = LogService.getService(MethodHandles.lookup(), BadServiceInterface.class);
+    assertThrows(AbstractMethodError.class, () -> service.foo());
   }
 }

@@ -445,4 +445,26 @@ class LoggerImpl {
       throw rethrow(e);
     }
   }
+  
+  static class LogServiceImpl {
+    private static final ClassValue<Class<?>> SERVICE_IMPLS = new ClassValue<>() {
+      @Override
+      protected Class<?> computeValue(Class<?> type) {
+        return LoggerImpl.loggerClass(type, new Object[] { null, type.getName().replace('.', '/') });
+      }
+    };
+    
+    static Object getService(Lookup lookup, Class<?> serviceInterface, Class<?> configClass) {
+      Class<?> implClass = SERVICE_IMPLS.get(serviceInterface);
+      MethodHandle factory = createFactory(lookup, implClass);
+      MethodHandle mh = getLoggingMethodHandle(configClass, 4);
+      Object service;
+      try {
+        service = factory.invoke(mh);
+      } catch (Throwable e) {
+        throw LoggerImpl.rethrow(e);
+      }
+      return service;
+    }
+  }
 }

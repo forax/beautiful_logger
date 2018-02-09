@@ -81,7 +81,23 @@ public class LoggerGenerator {
     factory.visitEnd();
     
     // method
-    Path loggerClass = Paths.get("target/main/exploded/com.github.forax.beautifullogger/com/github/forax/beautifullogger/Logger.class");
+    generateOverride(writer,
+        Paths.get("target/main/exploded/com.github.forax.beautifullogger/com/github/forax/beautifullogger/Logger.class"));
+    generateOverride(writer,
+        Paths.get("target/main/exploded/com.github.forax.beautifullogger/com/github/forax/beautifullogger/LogServiceSPI$LogService.class"));
+    
+    writer.visitEnd();
+    
+    byte[] array = writer.toByteArray();
+    
+    //DEBUG
+    Files.write(Paths.get("Logger$Stub.class"), array);
+    
+    String data = new String(Base64.getEncoder().encode(array), ISO_8859_1);
+    System.out.println(data);
+  }
+
+  private static void generateOverride(ClassWriter writer, Path loggerClass) throws IOException {
     ClassReader reader = new ClassReader(Files.readAllBytes(loggerClass));
     reader.accept(new ClassVisitor(ASM6) {
       @Override
@@ -176,15 +192,5 @@ public class LoggerGenerator {
       }
       
     }, SKIP_CODE);
-    
-    writer.visitEnd();
-    
-    byte[] array = writer.toByteArray();
-    
-    //DEBUG
-    Files.write(Paths.get("Logger$Stub.class"), array);
-    
-    String data = new String(Base64.getEncoder().encode(array), ISO_8859_1);
-    System.out.println(data);
   }
 }
