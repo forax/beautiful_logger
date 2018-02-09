@@ -5,8 +5,6 @@ import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.MODUL
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.PACKAGE;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -99,14 +97,7 @@ public interface LoggerConfig {
      */
     static PrintFactory printer(Printer printer) {
       Objects.requireNonNull(printer);
-      MethodHandle mh;
-      try {
-        mh = MethodHandles.lookup().findVirtual(Printer.class, "print",
-            MethodType.methodType(void.class, String.class, Level.class, Throwable.class)); 
-      } catch (NoSuchMethodException | IllegalAccessException e) {
-        throw new AssertionError(e);
-      }
-      MethodHandle target = mh.bindTo(printer);
+      MethodHandle target = LoggerImpl.PrintFactoryImpl.PRINTER_PRINT.bindTo(printer);
       return __ -> target;
     }
     
@@ -115,45 +106,7 @@ public interface LoggerConfig {
      * @return a new PrintFactory that delegate the logging to the {@link java.lang.System.Logger system logger}.
      */
     static PrintFactory systemLogger() {
-      MethodHandle mh, filter;
-      try {
-        mh = MethodHandles.publicLookup().findVirtual(System.Logger.class, "log",
-            MethodType.methodType(void.class, System.Logger.Level.class, String.class, Throwable.class));
-        filter = MethodHandles.lookup().findStatic(PrintFactory.class, "level",
-            MethodType.methodType(System.Logger.Level.class, Level.class)); 
-      } catch (NoSuchMethodException | IllegalAccessException e) {
-        throw new AssertionError(e);
-      }
-      mh = MethodHandles.filterArguments(mh, 1, filter);
-      MethodHandle target = MethodHandles.permuteArguments(mh,
-          MethodType.methodType(void.class, System.Logger.class, String.class, Level.class, Throwable.class),
-          new int[] { 0, 2, 1, 3});
-      return configClass -> target.bindTo(System.getLogger(configClass.getName()));
-    }
-    
-    @SuppressWarnings("unused")
-    private static System.Logger.Level level(Level level) {
-      // do not use a switch here, we want this code to be inlined !
-      if (level == Level.ERROR) {
-        return System.Logger.Level.ERROR;
-      }
-      if (level == Level.WARNING) {
-        return System.Logger.Level.WARNING;
-      }
-      if (level == Level.INFO) {
-        return System.Logger.Level.INFO;
-      }
-      if (level == Level.DEBUG) {
-        return System.Logger.Level.DEBUG;
-      }
-      if (level == Level.TRACE) {
-        return System.Logger.Level.TRACE;
-      }
-      throw newIllegalStateException();
-    }
-    
-    private static IllegalStateException newIllegalStateException() {
-      return new IllegalStateException("unknown level");
+      return configClass -> LoggerImpl.PrintFactoryImpl.SYSTEM_LOGGER.bindTo(System.getLogger(configClass.getName()));
     }
   }
   

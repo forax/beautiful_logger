@@ -45,6 +45,7 @@ import java.util.function.Supplier;
 import com.github.forax.beautifullogger.Logger.Level;
 import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
 import com.github.forax.beautifullogger.LoggerConfig.PrintFactory;
+import com.github.forax.beautifullogger.LoggerConfig.Printer;
 
 import sun.misc.Unsafe;
 
@@ -58,6 +59,8 @@ class LoggerImpl {
   // used internally by Logger, should not be public
   static final Consumer<ConfigOption> EMPTY_CONSUMER = __ -> { /* empty */ };
   
+  static final MethodType PRINTING_TYPE = methodType(void.class, String.class, Level.class, Throwable.class);
+  
   private LoggerImpl() {
     throw new AssertionError();
   }
@@ -67,7 +70,6 @@ class LoggerImpl {
   }
   
   private static class CS extends MutableCallSite {
-    private static final MethodType PRINTING_TYPE = methodType(void.class, String.class, Level.class, Throwable.class);
     private static final MethodHandle FALLBACK;
     private static final MethodHandle[] CHECK_LEVELS;
     static {
@@ -449,6 +451,53 @@ class LoggerImpl {
       return (Logger)LOGGER_FACTORY.invokeExact(mh);
     } catch (Throwable e) {
       throw rethrow(e);
+    }
+  }
+  
+  static class PrintFactoryImpl {
+    static final MethodHandle SYSTEM_LOGGER;
+    static final MethodHandle PRINTER_PRINT;
+    static {
+      Lookup lookup = MethodHandles.lookup();
+      MethodHandle mh, filter;
+      try {
+        PRINTER_PRINT = lookup.findVirtual(Printer.class, "print", PRINTING_TYPE); 
+        mh = lookup.findVirtual(System.Logger.class, "log",
+            MethodType.methodType(void.class, System.Logger.Level.class, String.class, Throwable.class));
+        filter = lookup.findStatic(PrintFactoryImpl.class, "level",
+            MethodType.methodType(System.Logger.Level.class, Level.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+      mh = MethodHandles.filterArguments(mh, 1, filter);
+      SYSTEM_LOGGER = MethodHandles.permuteArguments(mh,
+          MethodType.methodType(void.class, System.Logger.class, String.class, Level.class, Throwable.class),
+          new int[] { 0, 2, 1, 3});
+    }
+    
+    @SuppressWarnings("unused")
+    private static System.Logger.Level level(Level level) {
+      // do not use a switch here, we want this code to be inlined !
+      if (level == Level.ERROR) {
+        return System.Logger.Level.ERROR;
+      }
+      if (level == Level.WARNING) {
+        return System.Logger.Level.WARNING;
+      }
+      if (level == Level.INFO) {
+        return System.Logger.Level.INFO;
+      }
+      if (level == Level.DEBUG) {
+        return System.Logger.Level.DEBUG;
+      }
+      if (level == Level.TRACE) {
+        return System.Logger.Level.TRACE;
+      }
+      throw newIllegalStateException();
+    }
+    
+    private static IllegalStateException newIllegalStateException() {
+      return new IllegalStateException("unknown level");
     }
   }
   
