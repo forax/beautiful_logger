@@ -4,5 +4,5 @@ before_install:
 
 install:
 - ./pro/bin/pro
-- JARS="-Dfile=target/main/artifact/com.github.forax.beautifullogger-0.9.3.jar -Dsources=target/main/artifact-src/com.github.forax.beautifullogger-source-0.9.3.jar -Djavadoc=target/main/artifact-doc/com.github.forax.beautifullogger-doc-0.9.3.jar"
+- JARS="-Dfile=target/main/artifact/com.github.forax.beautifullogger-0.9.4.jar -Dsources=target/main/artifact-src/com.github.forax.beautifullogger-source-0.9.4.jar -Djavadoc=target/main/artifact-doc/com.github.forax.beautifullogger-doc-0.9.4.jar"
 - mvn install:install-file $JARS -DpomFile=pom.xml -DgroupId=$GROUP -DartifactId=beautifullogger -Dversion=$VERSION -Dpackaging=jar
