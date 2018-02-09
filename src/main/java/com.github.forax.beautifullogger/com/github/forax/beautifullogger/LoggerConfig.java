@@ -24,13 +24,16 @@ import com.github.forax.beautifullogger.Logger.Level;
  * and if it is not defined, it tries to read the configuration property of the module, if it is not defined,
  * it uses the default values below.
  * 
+ * <p>&nbsp;</p>
  * <table>
  *  <tr><td>enable</td><td>true</td></tr>
  *  <tr><td>level</td><td>{@link Level#INFO}</td></tr>
- *  <tr><td>printFactory</td><td>@link {@link PrintFactory#systemLogger() System Logger}</td></tr>
+ *  <tr><td>printFactory</td><td>{@link PrintFactory#systemLogger() System Logger}</td></tr>
  *  <caption>default value of the configuration properties</caption>
  * </table>
+ * <p>&nbsp;</p>
  * 
+ * An example of reading the configuration
  * <pre>
  * class Example {
  *   private static final Logger LOGGER = Logger.getLogger(Example.class);
@@ -42,12 +45,13 @@ import com.github.forax.beautifullogger.Logger.Level;
  * </pre>
  * 
  * Because changing a configuration property may cause the Java Virtual Machine to de-optimize assembly codes,
- * the change to the properties of a LoggerConfig has to be in bulk using the method{@link LoggerConfig#update(Consumer)}.
+ * the change to the properties of a LoggerConfig has to be done in bulk using the method {@link LoggerConfig#update(Consumer)}.
  * 
  * By example to change the level of a configuration
  * <pre>
  *    config.update(opt -&gt; opt.level(Level.TRACE)); 
  * </pre>
+ * 
  */
 public interface LoggerConfig {
   /**

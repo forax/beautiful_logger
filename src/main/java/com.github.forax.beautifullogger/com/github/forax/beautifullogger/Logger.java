@@ -40,9 +40,10 @@ import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
  * </pre>
  * 
  * Each logging method has several overloads allowing to choose a message provider
- * to avoid if possible, allocation due to concatenation, non constant lambda or
+ * to avoid if possible, allocations due to concatenation, non constant lambda or
  * boxing of primitive values.
  * 
+ * <p>&nbsp;</p>
  * <table>
  *  <tr><th>message providers</th></tr>
  *  <tr><td>String</td>        <td>constant String (do not use concatenation !)</td></tr>
@@ -54,6 +55,7 @@ import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
  *  <tr><td>BiFunction</td>    <td>costly operation that needs two arguments</td></tr>
  *  <caption>supported message providers</caption>
  * </table>
+ * <p>&nbsp;</p>
  * 
  * For other signatures, you can also create your own {@link LogService}.
  */
