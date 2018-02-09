@@ -7,6 +7,9 @@ packager.
         "com.github.forax.beautifullogger.tool@0.9.4"
     ))
 
+docer.
+  rawArguments(list("-link", "https://docs.oracle.com/javase/9/docs/api/"))
+
 resolver.
     dependencies(list(
         "org.objectweb.asm=org.ow2.asm:asm:6.0",
