@@ -71,15 +71,15 @@ public interface Logger {
    * @see LoggerConfig#level()
    */
   public enum Level {
-    /* a fine grained debug level */
+    /** a fine grained debug level */
     TRACE,
-    /* a general debug level */
+    /** a general debug level */
     DEBUG,
-    /* an information level */
+    /** an information level */
     INFO,
-    /* a non normal state level */
+    /** a non normal state level */
     WARNING,
-    /* an error level */
+    /** an error level */
     ERROR;
     
     static final Level[] LEVELS = values();
