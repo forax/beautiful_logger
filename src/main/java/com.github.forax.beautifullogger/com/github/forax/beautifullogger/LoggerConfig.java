@@ -112,8 +112,8 @@ public interface LoggerConfig {
   
   
   /**
-   *  The option that can be mutated by the method {@link LoggerConfig#update(Consumer)}
-   *  of a {@link LoggerConfig}.
+   *  The configuration properties that can be mutated
+   *  by the method {@link LoggerConfig#update(Consumer)} of a {@link LoggerConfig}.
    */
   interface ConfigOption {
     /**
@@ -130,7 +130,7 @@ public interface LoggerConfig {
      */
     ConfigOption level(Level level);
     /**
-     * Update the configuration property enable.
+     * Update the configuration property printFactory.
      * @param factory the print factory to use
      * @return this configuration option
      * @throws NullPointerException if the factory is null
