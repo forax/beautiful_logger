@@ -31,7 +31,7 @@ This is similar to the way, MethodHandle or VarHandle are optimized in the JDK.
 The main drawback is that it put more pressure to the JITs so it may lengthen the time to steady state of an application.
 
 
-## Build Tool Integration
+## Build Tool Integration [![](https://jitpack.io/v/forax/beautiful_logger.svg)](https://jitpack.io/#forax/beautiful_logger)
 
 Get latest binary distribution via [JitPack](https://jitpack.io/#forax/beautiful_logger) 
 
