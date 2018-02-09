@@ -1,4 +1,4 @@
-# beautiful_logger
+# beautiful_logger [![](https://api.travis-ci.org/forax/beautiful_logger.svg?branch=master)](https://travis-ci.org/forax/beautiful_logger)
 Yet another logger API in Java with beautiful features
 
 With Java 9 comes with the Java System.Logger API ([JEP 264](http://openjdk.java.net/jeps/264))
