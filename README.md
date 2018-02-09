@@ -48,8 +48,7 @@ class Example {
       
       if (i == 1) {
         // disable the logger programmatically
-        LoggerConfig.fromClass(Example.class)
-          .update(opt -> opt.enable(false));
+        LoggerConfig.fromClass(Example.class).update(opt -> opt.enable(false));
       }
     }
   }
