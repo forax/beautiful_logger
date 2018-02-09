@@ -54,7 +54,7 @@ class LoggerImpl {
   }
   static final Object NONE = new None();
   
-  // used internally by Logger, should not be visible
+  // used internally by Logger, should not be public
   static final Consumer<ConfigOption> EMPTY_CONSUMER = __ -> { /* empty */ };
   
   private LoggerImpl() {
