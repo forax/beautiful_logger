@@ -42,7 +42,7 @@ class Example {
   
   public static void main(String[] args) {
     for(int i = 0; i < 10; i++) {
-      // use a lambda that do not capture any parameters 
+      // use a lambda that does not capture any parameters 
       LOGGER.error((int value) -> "message " + value, i);
       
       if (i == 1) {
