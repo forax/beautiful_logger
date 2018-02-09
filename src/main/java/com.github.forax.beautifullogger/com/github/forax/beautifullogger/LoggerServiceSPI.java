@@ -1,7 +1,6 @@
 package com.github.forax.beautifullogger;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 
 public class LoggerServiceSPI {
@@ -18,16 +17,6 @@ public class LoggerServiceSPI {
   
   //null object
   public static final Object NONE = LoggerImpl.NONE;
-
-  public static <T> T getService(Class<T> serviceType) {
-    Lookup lookup = MethodHandles.publicLookup();
-    try {
-      lookup.accessClass(serviceType);
-    } catch (IllegalAccessException e) {
-      throw new IllegalStateException(e);
-    }
-    return getService(lookup, serviceType, serviceType);
-  }
   
   public static <T> T getService(Lookup lookup, Class<T> serviceType) {
     return getService(lookup, serviceType, serviceType);
