@@ -9,6 +9,7 @@ that let you configure/re-configure the logger dynamically in a programmatic way
 
 This library required Java 9 and obviously is fully Java 9 compatible.
 
+The javadoc of the latest version is [available online](https://jitpack.io/com/github/forax/beautiful_logger/master-SNAPSHOT/javadoc/).
 
 ## Features
 - *real* zero cost (no allocation, no branch, no assembly code) if a logger is disabled
@@ -54,8 +55,6 @@ class Example {
   }
 }
 ```
-
-The [javadoc](https://jitpack.io/com/github/forax/beautiful_logger/0.9.4/javadoc/) of version 0.9.4 is available online.
 
 ## Build Tool Integration [![](https://jitpack.io/v/forax/beautiful_logger.svg)](https://jitpack.io/#forax/beautiful_logger)
 
