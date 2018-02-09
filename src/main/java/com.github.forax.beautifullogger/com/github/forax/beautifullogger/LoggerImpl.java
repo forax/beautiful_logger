@@ -23,6 +23,7 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
 import java.lang.invoke.SwitchPoint;
+import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.Field;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Base64;
@@ -66,6 +67,7 @@ class LoggerImpl {
   }
   
   private static class CS extends MutableCallSite {
+    private static final MethodType PRINTING_TYPE = methodType(void.class, String.class, Level.class, Throwable.class);
     private static final MethodHandle FALLBACK;
     private static final MethodHandle[] CHECK_LEVELS;
     static {
@@ -111,11 +113,13 @@ class LoggerImpl {
         // get configuration 'printFactory' 
         PrintFactory printFactory = PRINTFACTORY_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints)
             .orElseGet(PrintFactory::systemLogger);
+        MethodHandle printing = printFactory.getPrintMethodHandle(configClass);
+        if (!printing.type().equals(PRINTING_TYPE)) {
+          throw new WrongMethodTypeException("the print method handle should be typed (String, Level, Throwable)V " + printing);
+        }
         
-        //FIXME verify the method type of return value of getPrintMethodHandle
-        MethodHandle print = dropArguments(
-            printFactory.getPrintMethodHandle(configClass),
-            3, nCopies(1 + maxParameters, Object.class));
+        // adjust to the number of parameters (+ the message provider)
+        MethodHandle print = dropArguments(printing, 3, nCopies(1 + maxParameters, Object.class));
         
         // create the message provider call site, we already have the arguments of the first call here,
         // so we can directly call the fallback to avoid an unnecessary round trip 
