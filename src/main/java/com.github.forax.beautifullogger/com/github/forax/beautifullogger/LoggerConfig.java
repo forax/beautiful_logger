@@ -107,8 +107,8 @@ public interface LoggerConfig {
     }
     
     /**
-     * Create a PrintFactory from the {@link System.Logger system logger}.
-     * @return a new PrintFactory that delegate the logging to the {@link System.Logger system logger}.
+     * Create a PrintFactory from the {@link java.lang.System.Logger system logger}.
+     * @return a new PrintFactory that delegate the logging to the {@link java.lang.System.Logger system logger}.
      */
     static PrintFactory systemLogger() {
       MethodHandle mh, filter;
