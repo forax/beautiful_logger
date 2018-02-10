@@ -82,5 +82,5 @@ Get latest binary distribution via [JitPack](https://jitpack.io/#forax/beautiful
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-            compile 'com.github.forax:beautiful_logger:master-SNAPSHOT'
+        compile 'com.github.forax:beautiful_logger:master-SNAPSHOT'
     }
