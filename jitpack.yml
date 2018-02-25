@@ -1,8 +1,0 @@
-before_install:
-- wget --no-check-certificate https://github.com/forax/pro/releases/download/v0.10.42b/pro-10-b42b-linux.tar.gz
-- tar -xzf pro-10-b42b-linux.tar.gz
-
-install:
-- ./pro/bin/pro
-- JARS="-Dfile=target/main/artifact/com.github.forax.beautifullogger-0.9.4.jar -Dsources=target/main/artifact-src/com.github.forax.beautifullogger-source-0.9.4.jar -Djavadoc=target/main/artifact-doc/com.github.forax.beautifullogger-doc-0.9.4.jar"
-- mvn install:install-file $JARS -DpomFile=pom.xml -DgroupId=$GROUP -DartifactId=beautifullogger -Dversion=$VERSION -Dpackaging=jar
