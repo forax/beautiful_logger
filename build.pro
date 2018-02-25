@@ -3,8 +3,8 @@ import static com.github.forax.pro.builder.Builders.*;
 
 packager.
     moduleMetadata(list(
-        "com.github.forax.beautifullogger@0.9.4",
-        "com.github.forax.beautifullogger.tool@0.9.4"
+        "com.github.forax.beautifullogger@0.9.5",
+        "com.github.forax.beautifullogger.tool@0.9.5"
     ))
 
 docer.
