@@ -18,15 +18,9 @@ resolver.
         "org.junit.jupiter.params=org.junit.jupiter:junit-jupiter-params:5.1.0",
         "org.junit.platform.commons=org.junit.platform:junit-platform-commons:1.1.0",
         "org.apiguardian.api=org.apiguardian:apiguardian-api:1.0.0",
-        "org.opentest4j=org.opentest4j:opentest4j:1.0.0",
-        
-        "org.apache.logging.log4j=org.apache.logging.log4j:log4j-api:2.10.0",
-        "org.apache.logging.log4j.core=org.apache.logging.log4j:log4j-core:2.10.0"
+        "org.opentest4j=org.opentest4j:opentest4j:1.0.0"
     ))
-    
-modulefixer.
-  additionalRequires(list("org.apache.logging.log4j.core=java.activation/true"))
 
-run(resolver, modulefixer, compiler, tester, docer, packager)
+run(resolver, compiler, tester, docer, packager)
 
 /exit
