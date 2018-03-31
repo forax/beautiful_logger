@@ -41,6 +41,7 @@ compiler.
     ))
   
 docer.
+  quiet(true).
   rawArguments(list("-link", "https://docs.oracle.com/javase/9/docs/api/"))
 
 packager.
