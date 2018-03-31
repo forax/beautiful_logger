@@ -12,5 +12,4 @@ install:
 
 script:
   - ./pro/bin/pro version
-  - ./pro/bin/pro build perfer
-
+  - ./pro/bin/pro
