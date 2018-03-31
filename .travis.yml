@@ -6,21 +6,11 @@ language: java
 before_install:
   - unset _JAVA_OPTIONS
 
-matrix:
-  include:
-    - env: PRO_PERF="false"
-      install:
-        - wget --no-check-certificate https://github.com/forax/pro/releases/download/v0.11%2B7/pro-11.7-linux.tar.gz
-        - tar -xzf pro-11.7-linux.tar.gz
-      script:
-        - ./pro/bin/pro version
-        - ./pro/bin/pro
-   - env: PRO_PERF="true"
-      install:
-        - wget --no-check-certificate https://github.com/forax/pro/releases/download/v0.11%2B7/pro-11.7-linux.tar.gz
-        - tar -xzf pro-11.7-linux.tar.gz
-      script:
-        - ./pro/bin/pro version
-        - ./pro/bin/pro perf
+install:
+  - wget --no-check-certificate https://github.com/forax/pro/releases/download/v0.11%2B7/pro-11.7-linux.tar.gz
+  - tar -xzf pro-11.7-linux.tar.gz
 
+script:
+  - ./pro/bin/pro version
+  - ./pro/bin/pro
 
