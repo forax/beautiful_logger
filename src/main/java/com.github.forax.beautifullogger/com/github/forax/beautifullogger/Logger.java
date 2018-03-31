@@ -325,7 +325,7 @@ public interface Logger {
    * @see LoggerConfig#fromClass(Class)
    */
   public static Logger getLogger() {
-    Class<?> declaringClass = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE).getCallerClass();
+    Class<?> declaringClass = LoggerImpl.StackWalkerHolder.STACK_WALKER.getCallerClass();
     return getLogger(declaringClass, LoggerImpl.EMPTY_CONSUMER);
   }
   

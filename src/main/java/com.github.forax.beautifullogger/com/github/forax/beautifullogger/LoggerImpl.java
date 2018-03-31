@@ -17,6 +17,7 @@ import static java.lang.invoke.MethodType.methodType;
 import static java.util.Collections.nCopies;
 import static java.util.Map.entry;
 
+import java.lang.StackWalker.Option;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
@@ -50,6 +51,10 @@ import com.github.forax.beautifullogger.LoggerConfig.Printer;
 import sun.misc.Unsafe;
 
 class LoggerImpl {
+  static class StackWalkerHolder {
+    static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+  }
+  
   private static class None {
     None() { /* singleton */ }
     @Override public String toString() { return "NONE"; }
