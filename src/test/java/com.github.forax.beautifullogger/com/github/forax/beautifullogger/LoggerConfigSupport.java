@@ -8,7 +8,7 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Objects;
 
 import com.github.forax.beautifullogger.Logger.Level;
-import com.github.forax.beautifullogger.LoggerConfig.PrintFactory;
+import com.github.forax.beautifullogger.LoggerConfig.LogEventFactory;
 
 class LoggerConfigSupport {
   /**
@@ -43,7 +43,7 @@ class LoggerConfigSupport {
    * @return a new PrintFactory that delegate the logging to the printer.
    * @throws NullPointerException if the printer is null.
    */
-  static PrintFactory printer(Printer printer) {
+  static LogEventFactory printer(Printer printer) {
     Objects.requireNonNull(printer);
     MethodHandle target = PRINTER_PRINT.bindTo(printer);
     return __ -> target;

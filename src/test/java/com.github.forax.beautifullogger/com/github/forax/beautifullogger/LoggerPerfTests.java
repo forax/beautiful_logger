@@ -13,7 +13,7 @@ class LoggerPerfTests {
   private static class Perf1 {
     static int sinkHole;
     
-    static final Logger LOGGER = Logger.getLogger(Perf1.class, opt -> opt.printFactory(printer((message, level, context) -> {
+    static final Logger LOGGER = Logger.getLogger(Perf1.class, opt -> opt.logEventFactory(printer((message, level, context) -> {
       sinkHole++;
     })));
   }

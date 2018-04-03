@@ -3,9 +3,9 @@ package com.github.forax.beautifullogger;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.CLASS;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.MODULE;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.PACKAGE;
-import static java.lang.invoke.MethodType.methodType;
 
 import java.lang.invoke.MethodHandle;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -27,7 +27,7 @@ import com.github.forax.beautifullogger.Logger.Level;
  * <table>
  *  <tr><td>enable</td><td>true</td></tr>
  *  <tr><td>level</td><td>{@link Level#INFO}</td></tr>
- *  <tr><td>printFactory</td><td>{@link PrintFactory#systemLogger() System Logger}</td></tr>
+ *  <tr><td>logEventFactory</td><td>{@link LogEventFactory#defaultFactory()}</td></tr>
  *  <caption>default value of the configuration properties</caption>
  * </table>
  * <p>&nbsp;</p>
@@ -57,11 +57,11 @@ public interface LoggerConfig {
    * The interface that provides a method handle that can emit
    * a logging event for a configuration class.
    * 
-   * @see LoggerConfig#printFactory()
-   * @see ConfigOption#printFactory(PrintFactory)
+   * @see LoggerConfig#logEventFactory()
+   * @see ConfigOption#logEventFactory(LogEventFactory)
    */
   @FunctionalInterface
-  interface PrintFactory {
+  interface LogEventFactory {
     /**
      * Returns a method handle that can emit a logging event for a configuration class, its method type must be
      * {@link java.lang.invoke.MethodType#methodType(Class, Class[]) MethodType#methodType(void.class, String.class, Level.class, Throwable.class)}.
@@ -74,14 +74,87 @@ public interface LoggerConfig {
     MethodHandle getPrintMethodHandle(Class<?> configClass);
     
     /**
-     * Create a PrintFactory from the {@link java.lang.System.Logger system logger}.
-     * @return a new PrintFactory that delegate the logging to the {@link java.lang.System.Logger system logger}.
+     * A strategy represent a Logger factory that may or may not be available.
+     * 
+     * @see LogEventFactory#fromStrategies(Strategy...)
      */
-    static PrintFactory systemLogger() {
-      return configClass -> LoggerImpl.SystemLoggerFactoryImpl.SYSTEM_LOGGER.bindTo(System.getLogger(configClass.getName()));
+    enum Strategy {
+      /**
+       * The SLF4J strategy.
+       */
+      SLF4J(Optional.of(LogEventFactory.slf4jFactory()).filter(__ -> isAvailable("org.slf4j.LoggerFactory"))),
+      
+      /**
+       * The LOG4J strategy.
+       */
+      LOG4J(Optional.of(LogEventFactory.log4jFactory()).filter(__ -> isAvailable("org.apache.logging.log4j.LogManager"))),
+      
+      /**
+       * The System.Logger strategy.
+       */
+      SYSTEM_LOGGER(Optional.of(LogEventFactory.systemLoggerFactory()))
+      ;
+      
+      final Optional<LogEventFactory> factory;
+      
+      private Strategy(Optional<LogEventFactory> factory) {
+        this.factory = factory;
+      }
+
+      private static boolean isAvailable(String className) {
+        try {
+          Class.forName(className);
+          return true;
+        } catch(@SuppressWarnings("unused") ClassNotFoundException __) {
+          return false;
+        }
+      }
+      
+      static final LogEventFactory DEFAULT_FACTORY = fromStrategies(SLF4J, LOG4J, SYSTEM_LOGGER);
     }
     
+    /**
+     * Return the first available LogEventFactory among {@link Strategy#SLF4J}, {@link Strategy#LOG4J} and {@link Strategy#SYSTEM_LOGGER}.
+     * This call is equivalent to {@link LogEventFactory#fromStrategies(Strategy...) fromStrategies(SLF4J, LOG4J, SYSTEM_LOGGER)}.
+     * @return the first available LogEventFactory.
+     */
+    static LogEventFactory defaultFactory() {
+      return Strategy.DEFAULT_FACTORY;  
+    }
     
+    /**
+     * Returns a LogEventFactory by checking checking each {@link Strategy} to find an available logger factory
+     * or default to the {@link #systemLoggerFactory()}.
+     * @param strategies the strategy to pick in order.
+     * @return the first LogEventFactory available.  
+     */
+    static LogEventFactory fromStrategies(Strategy... strategies) {
+      return Arrays.stream(strategies).flatMap(s -> s.factory.stream()).findFirst().orElseGet(LogEventFactory::systemLoggerFactory);
+    }
+    
+    /**
+     * Returns a LogEventFactory that uses SLF4J to log events.
+     * @return a LogEventFactory that uses SLF4J to log events.
+     */
+    static LogEventFactory slf4jFactory() {
+      return configClass -> LoggerImpl.SLF4JFactoryImpl.SLF4J_LOGGER.bindTo(org.slf4j.LoggerFactory.getLogger(configClass));
+    }
+    
+    /**
+     * Returns a LogEventFactory that uses LOG4J to log events.
+     * @return a LogEventFactory that uses LOG4J to log events.
+     */
+    static LogEventFactory log4jFactory() {
+      return configClass -> LoggerImpl.Log4JFactoryImpl.LOG4J_LOGGER.bindTo(org.apache.logging.log4j.LogManager.getLogger(configClass));
+    }
+    
+    /**
+     * Returns a LogEventFactory that uses the {@link java.lang.System.Logger system logger}.
+     * @return a new PrintFactory that delegate the logging to the {@link java.lang.System.Logger system logger}.
+     */
+    static LogEventFactory systemLoggerFactory() {
+      return configClass -> LoggerImpl.SystemLoggerFactoryImpl.SYSTEM_LOGGER.bindTo(System.getLogger(configClass.getName()));
+    }
   }
   
   
@@ -104,12 +177,12 @@ public interface LoggerConfig {
      */
     ConfigOption level(Level level);
     /**
-     * Update the configuration property printFactory.
+     * Update the configuration property logEventFactory.
      * @param factory the print factory to use
      * @return this configuration option
      * @throws NullPointerException if the factory is null
      */
-    ConfigOption printFactory(PrintFactory factory);
+    ConfigOption logEventFactory(LogEventFactory factory);
   }
   
   /**
@@ -123,10 +196,10 @@ public interface LoggerConfig {
    */
   Optional<Level> level();
   /**
-   * Returns the logging print factory if set.
-   * @return the logging print factory if set.
+   * Returns the log event factory if set.
+   * @return the log event factory if set.
    */
-  Optional<PrintFactory> printFactory();
+  Optional<LogEventFactory> logEventFactory();
   
   /**
    * Update the configuration by updating the value and then commit the changes. 

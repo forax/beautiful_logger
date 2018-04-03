@@ -2,15 +2,17 @@ package com.github.forax.beautifullogger;
 
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.ENABLE_CONF;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.LEVEL_CONF;
-import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.PRINTFACTORY_CONF;
+import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.LOGEVENTFACTORY_CONF;
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.invoke.MethodHandles.empty;
 import static java.lang.invoke.MethodHandles.exactInvoker;
+import static java.lang.invoke.MethodHandles.filterArguments;
 import static java.lang.invoke.MethodHandles.foldArguments;
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodHandles.identity;
 import static java.lang.invoke.MethodHandles.insertArguments;
 import static java.lang.invoke.MethodHandles.lookup;
+import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
@@ -45,7 +47,7 @@ import java.util.function.Supplier;
 
 import com.github.forax.beautifullogger.Logger.Level;
 import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
-import com.github.forax.beautifullogger.LoggerConfig.PrintFactory;
+import com.github.forax.beautifullogger.LoggerConfig.LogEventFactory;
 
 import sun.misc.Unsafe;
 
@@ -116,9 +118,9 @@ class LoggerImpl {
       MethodHandle empty = empty(type());
       if (enable) {
         // get configuration 'printFactory' 
-        PrintFactory printFactory = PRINTFACTORY_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints)
-            .orElseGet(PrintFactory::systemLogger);
-        MethodHandle printing = printFactory.getPrintMethodHandle(configClass);
+        LogEventFactory logEventFactory = LOGEVENTFACTORY_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints)
+            .orElseGet(LogEventFactory::defaultFactory);
+        MethodHandle printing = logEventFactory.getPrintMethodHandle(configClass);
         if (!printing.type().equals(PRINTING_TYPE)) {
           throw new WrongMethodTypeException("the print method handle should be typed (String, Level, Throwable)V " + printing);
         }
@@ -328,7 +330,7 @@ class LoggerImpl {
   static class LoggerConfigFeature<T> {
     static final LoggerConfigFeature<Boolean> ENABLE_CONF = new LoggerConfigFeature<>(LoggerConfig::enable);
     static final LoggerConfigFeature<Level> LEVEL_CONF = new LoggerConfigFeature<>(LoggerConfig::level);
-    static final LoggerConfigFeature<PrintFactory> PRINTFACTORY_CONF = new LoggerConfigFeature<>(LoggerConfig::printFactory);
+    static final LoggerConfigFeature<LogEventFactory> LOGEVENTFACTORY_CONF = new LoggerConfigFeature<>(LoggerConfig::logEventFactory);
     
     private final Function<LoggerConfigImpl, Optional<T>> extractor;
     
@@ -363,8 +365,8 @@ class LoggerImpl {
         return this;
       }
       @Override
-      public ConfigOption printFactory(PrintFactory printFactory) {
-        LoggerConfigImpl.this.printFactory = Objects.requireNonNull(printFactory);
+      public ConfigOption logEventFactory(LogEventFactory printFactory) {
+        LoggerConfigImpl.this.logEventFactory = Objects.requireNonNull(printFactory);
         return this;
       }
     }
@@ -374,7 +376,7 @@ class LoggerImpl {
     
     volatile Boolean enable; // nullable
     volatile Level level;    // nullable
-    volatile PrintFactory printFactory;  // nullable
+    volatile LogEventFactory logEventFactory;  // nullable
 
     LoggerConfigImpl() {
       synchronized(lock) {
@@ -391,8 +393,8 @@ class LoggerImpl {
       return Optional.ofNullable(level);
     }
     @Override
-    public Optional<PrintFactory> printFactory() {
-      return Optional.ofNullable(printFactory);
+    public Optional<LogEventFactory> logEventFactory() {
+      return Optional.ofNullable(logEventFactory);
     }
     
     SwitchPoint switchPoint() {
@@ -464,14 +466,14 @@ class LoggerImpl {
       MethodHandle mh, filter;
       try {
         mh = lookup.findVirtual(System.Logger.class, "log",
-            MethodType.methodType(void.class, System.Logger.Level.class, String.class, Throwable.class));
+            methodType(void.class, System.Logger.Level.class, String.class, Throwable.class));
         filter = lookup.findStatic(SystemLoggerFactoryImpl.class, "level",
-            MethodType.methodType(System.Logger.Level.class, Level.class));
+            methodType(System.Logger.Level.class, Level.class));
       } catch (NoSuchMethodException | IllegalAccessException e) {
         throw new AssertionError(e);
       }
-      mh = MethodHandles.filterArguments(mh, 1, filter);
-      SYSTEM_LOGGER = MethodHandles.permuteArguments(mh,
+      mh = filterArguments(mh, 1, filter);
+      SYSTEM_LOGGER = permuteArguments(mh,
           MethodType.methodType(void.class, System.Logger.class, String.class, Level.class, Throwable.class),
           new int[] { 0, 2, 1, 3});
     }
@@ -496,10 +498,106 @@ class LoggerImpl {
       }
       throw newIllegalStateException();
     }
-    
-    private static IllegalStateException newIllegalStateException() {
-      return new IllegalStateException("unknown level");
+  }
+  
+  static class Log4JFactoryImpl {
+    static final MethodHandle LOG4J_LOGGER;
+    static {
+      Lookup lookup = MethodHandles.lookup();
+      MethodHandle mh, filter;
+      try {
+        mh = lookup.findVirtual(org.apache.logging.log4j.Logger.class, "log",
+            methodType(void.class, org.apache.logging.log4j.Level.class, Object.class, Throwable.class));
+        mh = mh.asType(methodType(void.class, org.apache.logging.log4j.Logger.class, org.apache.logging.log4j.Level.class, String.class, Throwable.class));
+        filter = lookup.findStatic(Log4JFactoryImpl.class, "level",
+            methodType(org.apache.logging.log4j.Level.class, Level.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+      mh = filterArguments(mh, 1, filter);
+      LOG4J_LOGGER = permuteArguments(mh,
+          methodType(void.class, org.apache.logging.log4j.Logger.class, String.class, Level.class, Throwable.class),
+          new int[] { 0, 2, 1, 3});
     }
+    
+    @SuppressWarnings("unused")
+    private static org.apache.logging.log4j.Level level(Level level) {
+      // do not use a switch here, we want this code to be inlined !
+      if (level == Level.ERROR) {
+        return org.apache.logging.log4j.Level.ERROR;
+      }
+      if (level == Level.WARNING) {
+        return org.apache.logging.log4j.Level.WARN;
+      }
+      if (level == Level.INFO) {
+        return org.apache.logging.log4j.Level.INFO;
+      }
+      if (level == Level.DEBUG) {
+        return org.apache.logging.log4j.Level.DEBUG;
+      }
+      if (level == Level.TRACE) {
+        return org.apache.logging.log4j.Level.TRACE;
+      }
+      throw newIllegalStateException();
+    }
+  }
+  
+  static class SLF4JFactoryImpl {
+    static final MethodHandle SLF4J_LOGGER;
+    private static final MethodHandle ERROR, WARNING, INFO, DEBUG, TRACE; 
+    static {
+      Lookup lookup = MethodHandles.lookup();
+      ERROR = mh(lookup, "error");
+      WARNING = mh(lookup, "warn");
+      INFO = mh(lookup, "info");
+      DEBUG = mh(lookup, "debug");
+      TRACE = mh(lookup, "trace");
+      
+      MethodHandle level;
+      try {
+        level = lookup.findStatic(SLF4JFactoryImpl.class, "level",
+            methodType(MethodHandle.class, org.slf4j.Logger.class, String.class, Level.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+      
+      MethodHandle invoker = exactInvoker(methodType(void.class, org.slf4j.Logger.class, String.class, Throwable.class));
+      MethodHandle mh = dropArguments(invoker, 3, Level.class);
+      SLF4J_LOGGER = foldArguments(mh, level);
+    }
+    
+    private static MethodHandle mh(Lookup lookup, String name) {
+      try {
+        return lookup.findVirtual(org.slf4j.Logger.class, name, methodType(void.class, String.class, Throwable.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+    }
+    
+    @SuppressWarnings("unused")
+    private static MethodHandle level(org.slf4j.Logger logger, String message, Level level) {
+      // do not use a switch here, we want this code to be inlined !
+      if (level == Level.ERROR) {
+        return ERROR;
+      }
+      if (level == Level.WARNING) {
+        return WARNING;
+      }
+      if (level == Level.INFO) {
+        return INFO;
+      }
+      if (level == Level.DEBUG) {
+        return DEBUG;
+      }
+      if (level == Level.TRACE) {
+        return TRACE;
+      }
+      throw newIllegalStateException();
+    }
+  }
+  
+  static IllegalStateException newIllegalStateException() {
+    return new IllegalStateException("unknown level");
   }
   
   static class LogServiceImpl {

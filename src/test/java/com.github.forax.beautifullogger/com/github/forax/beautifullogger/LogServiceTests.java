@@ -37,7 +37,7 @@ class LogServiceTests {
     MethodLoggerService service = MethodLoggerService.getService();
     LoggerConfig config = LoggerConfig.fromClass(MethodLoggerService.class);
     
-    config.update(opt -> opt.printFactory(printer((message, level, context) -> {
+    config.update(opt -> opt.logEventFactory(printer((message, level, context) -> {
       assertAll(  
         () -> assertEquals(Level.INFO, level),
         () -> assertEquals("enter", message),
@@ -46,7 +46,7 @@ class LogServiceTests {
     })));
     service.logEnter();
     
-    config.update(opt -> opt.printFactory(printer((message, level, context) -> {
+    config.update(opt -> opt.logEventFactory(printer((message, level, context) -> {
       assertAll(  
         () -> assertEquals(Level.INFO, level),
         () -> assertEquals("exit", message),
@@ -85,7 +85,7 @@ class LogServiceTests {
         .update(opt -> opt.level(Level.TRACE));
     
     boolean[] called1 = { false };
-    config.update(opt -> opt.printFactory(printer((message, level, context) -> {
+    config.update(opt -> opt.logEventFactory(printer((message, level, context) -> {
       called1[0] = true;
       assertAll(  
         () -> assertEquals(Level.TRACE, level),
@@ -97,7 +97,7 @@ class LogServiceTests {
     assertTrue(called1[0]);
     
     boolean[] called2 = { false };
-    config.update(opt -> opt.printFactory(printer((message, level, context) -> {
+    config.update(opt -> opt.logEventFactory(printer((message, level, context) -> {
       called2[0] = true;
       assertAll(  
         () -> assertEquals(Level.INFO, level),
@@ -115,7 +115,7 @@ class LogServiceTests {
     LogService service = LogService.getService(MethodHandles.lookup(), LogService.class, localClass);
     
     boolean[] called1 = { false };
-    LoggerConfig.fromClass(localClass).update(opt -> opt.printFactory(printer((message, level, context) -> {
+    LoggerConfig.fromClass(localClass).update(opt -> opt.logEventFactory(printer((message, level, context) -> {
       called1[0] = true;
       assertAll(  
         () -> assertEquals(Level.ERROR, level),
