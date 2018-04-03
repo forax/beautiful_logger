@@ -16,12 +16,7 @@ class VerySimpleTests {
     config.update(opt -> opt.logEventFactory(LogEventFactory.slf4jFactory()));
     
     for(int i = 0; i < 10; i++) {
-      try {
       LOGGER.error((int value) -> "message " + value, i);
-      } catch(Error | RuntimeException e) {
-        e.printStackTrace();
-        throw e;
-      }
       
       if (i == 1) {
         config.update(opt -> opt.enable(false));
