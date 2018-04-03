@@ -2,7 +2,7 @@ package com.github.forax.beautifullogger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static com.github.forax.beautifullogger.LoggerConfig.PrintFactory.printer;
+import static com.github.forax.beautifullogger.LoggerConfigSupport.printer;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.github.forax.beautifullogger.Logger;
 import com.github.forax.beautifullogger.LoggerConfig;
 import com.github.forax.beautifullogger.Logger.Level;
-import com.github.forax.beautifullogger.LoggerConfig.Printer;
+import com.github.forax.beautifullogger.LoggerConfigSupport.Printer;
 
 @SuppressWarnings("static-method")
 class LoggerConfigurationTests {

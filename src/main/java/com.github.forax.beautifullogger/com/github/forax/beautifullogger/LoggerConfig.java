@@ -3,6 +3,7 @@ package com.github.forax.beautifullogger;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.CLASS;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.MODULE;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigKind.PACKAGE;
+import static java.lang.invoke.MethodType.methodType;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Objects;
@@ -53,24 +54,6 @@ import com.github.forax.beautifullogger.Logger.Level;
  */
 public interface LoggerConfig {
   /**
-   * The interface to intercept the logging events after that logging level
-   * have been been verified and the message have been computed.
-   * 
-   * @see PrintFactory#printer(Printer)
-   */
-  @FunctionalInterface
-  interface Printer {
-    /**
-     * Emit the logging event.
-     * 
-     * @param message the event message
-     * @param level the event level
-     * @param context the event exception or null.
-     */
-    void print(String message, Level level, Throwable context);
-  }
-  
-  /**
    * The interface that provides a method handle that can emit
    * a logging event for a configuration class.
    * 
@@ -80,7 +63,8 @@ public interface LoggerConfig {
   @FunctionalInterface
   interface PrintFactory {
     /**
-     * Returns a method handle that can emit a logging event for a configuration class.
+     * Returns a method handle that can emit a logging event for a configuration class, its method type must be
+     * {@link java.lang.invoke.MethodType#methodType(Class, Class[]) MethodType#methodType(void.class, String.class, Level.class, Throwable.class)}.
      * This method is not called for each event but more or less each time
      * the runtime detects that the configuration has changed.
      * 
@@ -90,24 +74,14 @@ public interface LoggerConfig {
     MethodHandle getPrintMethodHandle(Class<?> configClass);
     
     /**
-     * Create a PrintFactory from a printer
-     * @param printer a printer.
-     * @return a new PrintFactory that delegate the logging to the printer.
-     * @throws NullPointerException if the printer is null.
-     */
-    static PrintFactory printer(Printer printer) {
-      Objects.requireNonNull(printer);
-      MethodHandle target = LoggerImpl.PrintFactoryImpl.PRINTER_PRINT.bindTo(printer);
-      return __ -> target;
-    }
-    
-    /**
      * Create a PrintFactory from the {@link java.lang.System.Logger system logger}.
      * @return a new PrintFactory that delegate the logging to the {@link java.lang.System.Logger system logger}.
      */
     static PrintFactory systemLogger() {
-      return configClass -> LoggerImpl.PrintFactoryImpl.SYSTEM_LOGGER.bindTo(System.getLogger(configClass.getName()));
+      return configClass -> LoggerImpl.SystemLoggerFactoryImpl.SYSTEM_LOGGER.bindTo(System.getLogger(configClass.getName()));
     }
+    
+    
   }
   
   

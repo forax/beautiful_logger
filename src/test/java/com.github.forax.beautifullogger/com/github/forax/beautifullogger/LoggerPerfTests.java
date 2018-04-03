@@ -1,6 +1,6 @@
 package com.github.forax.beautifullogger;
 
-import static com.github.forax.beautifullogger.LoggerConfig.PrintFactory.printer;
+import static com.github.forax.beautifullogger.LoggerConfigSupport.printer;
 
 import org.junit.jupiter.api.Test;
 

@@ -46,7 +46,6 @@ import java.util.function.Supplier;
 import com.github.forax.beautifullogger.Logger.Level;
 import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
 import com.github.forax.beautifullogger.LoggerConfig.PrintFactory;
-import com.github.forax.beautifullogger.LoggerConfig.Printer;
 
 import sun.misc.Unsafe;
 
@@ -64,8 +63,6 @@ class LoggerImpl {
   // used internally by Logger, should not be public
   static final Consumer<ConfigOption> EMPTY_CONSUMER = __ -> { /* empty */ };
   
-  static final MethodType PRINTING_TYPE = methodType(void.class, String.class, Level.class, Throwable.class);
-  
   private LoggerImpl() {
     throw new AssertionError();
   }
@@ -75,6 +72,7 @@ class LoggerImpl {
   }
   
   private static class CS extends MutableCallSite {
+    private static final MethodType PRINTING_TYPE = methodType(void.class, String.class, Level.class, Throwable.class);
     private static final MethodHandle FALLBACK;
     private static final MethodHandle[] CHECK_LEVELS;
     static {
@@ -459,17 +457,15 @@ class LoggerImpl {
     }
   }
   
-  static class PrintFactoryImpl {
+  static class SystemLoggerFactoryImpl {
     static final MethodHandle SYSTEM_LOGGER;
-    static final MethodHandle PRINTER_PRINT;
     static {
       Lookup lookup = MethodHandles.lookup();
       MethodHandle mh, filter;
       try {
-        PRINTER_PRINT = lookup.findVirtual(Printer.class, "print", PRINTING_TYPE); 
         mh = lookup.findVirtual(System.Logger.class, "log",
             MethodType.methodType(void.class, System.Logger.Level.class, String.class, Throwable.class));
-        filter = lookup.findStatic(PrintFactoryImpl.class, "level",
+        filter = lookup.findStatic(SystemLoggerFactoryImpl.class, "level",
             MethodType.methodType(System.Logger.Level.class, Level.class));
       } catch (NoSuchMethodException | IllegalAccessException e) {
         throw new AssertionError(e);
