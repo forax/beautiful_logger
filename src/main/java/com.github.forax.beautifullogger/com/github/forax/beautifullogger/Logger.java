@@ -1,6 +1,5 @@
 package com.github.forax.beautifullogger;
 
-import java.lang.StackWalker.Option;
 import java.lang.invoke.MethodHandle;
 import java.util.Objects;
 import java.util.function.BiFunction;
