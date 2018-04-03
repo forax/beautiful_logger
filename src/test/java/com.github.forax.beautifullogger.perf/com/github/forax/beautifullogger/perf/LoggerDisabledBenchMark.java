@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Marker;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
@@ -74,6 +73,7 @@ public class LoggerDisabledBenchMark {
 
     ConfigurationImpl(Object filter) { this.filter = filter; }
     
+    @Override
     public Object getFilter() {
       return filter;
     }
@@ -89,7 +89,7 @@ public class LoggerDisabledBenchMark {
       
       PrivateConfig(int intLevel) { this.intLevel = intLevel; filter = null; configuration = new ConfigurationImpl(null); }
       
-      boolean filter(final org.apache.logging.log4j.Level level, final Marker marker, final String msg) {
+      boolean filter(final org.apache.logging.log4j.Level level, @SuppressWarnings("unused") final Marker marker, @SuppressWarnings("unused") final String msg) {
         Object filter = configuration.getFilter();
         if (filter != null) {
           throw null;
