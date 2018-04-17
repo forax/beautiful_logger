@@ -23,7 +23,7 @@ import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
  * import com.github.forax.beautifullogger.Logger;
  *
  * class Example {
- *   private static final Logger LOGGER = Logger.getLogger(Example.class);
+ *   private static final Logger LOGGER = Logger.getLogger();
  *   
  *   ...
  * </pre>
