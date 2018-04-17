@@ -10,7 +10,7 @@ The javadoc of the latest version is [available online](https://jitpack.io/com/g
 
 ## Features
 - *real* zero cost (no allocation, no branch, no assembly code) if a logger is disabled
-- zero overhead cost when delegating to the logging libraries you already use, SLF4J, Log4J, Logback or JUL, SystemLogger [JEP 264](http://openjdk.java.net/jeps/264).
+- zero overhead cost when delegating to the logging libraries you already use, SLF4J, Log4J, Logback, JUL or SystemLogger [JEP 264](http://openjdk.java.net/jeps/264).
 - allow user defined Log services to higher up your logging practice
 - dynamic configuration/re-configuration which doesn't use costly inter-thread signaling
 - no configuration file, no XML, etc, everything is done programmatically
