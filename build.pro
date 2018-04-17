@@ -51,11 +51,11 @@ docer.
 
 packager.
     moduleMetadata(list(
-        "com.github.forax.beautifullogger@0.9.6",
-        "com.github.forax.beautifullogger.tool@0.9.6",
-        "com.github.forax.beautifullogger.perf@0.9.6",
-        "com.github.forax.beautifullogger.integration.log4j@0.9.6",
-        "com.github.forax.beautifullogger.integration.slf4jj@0.9.6"
+        "com.github.forax.beautifullogger@0.9.7",
+        "com.github.forax.beautifullogger.tool@0.9.7",
+        "com.github.forax.beautifullogger.perf@0.9.7",
+        "com.github.forax.beautifullogger.integration.log4j@0.9.7",
+        "com.github.forax.beautifullogger.integration.slf4jj@0.9.7"
     ))
 
 run(resolver, modulefixer, compiler, runner, tester, docer, packager)
