@@ -19,7 +19,7 @@ class LoggerConfigurationTests {
   void loggerDisableAtCreationTime() {
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        opt -> opt.enable(false).logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.enable(false).logEventFactory(printer((message, loggerLevel, context) -> {
           fail("logger shouble be disable");
         })));
     logger.debug("exception", null);
@@ -34,10 +34,10 @@ class LoggerConfigurationTests {
     Class<?> clazz = new Object() {/*empty*/}.getClass(); 
     Logger logger = Logger.getLogger(
         clazz,
-        opt -> opt.logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.logEventFactory(printer((message, loggerLevel, context) -> {
           fail("logger shouble be disable");
         })));
-    LoggerConfig.fromClass(clazz).update(opt -> opt.enable(false));
+    LoggerConfig.fromClass(clazz).update(upd -> upd.enable(false));
     logger.debug("exception", null);
     logger.error("exception", null);
     logger.info("exception", null);
@@ -64,12 +64,12 @@ class LoggerConfigurationTests {
       }
     }
     MyPrinter printer = new MyPrinter();
-    Logger logger = Logger.getLogger(clazz, opt -> opt.logEventFactory(printer(printer)));
+    Logger logger = Logger.getLogger(clazz, upd -> upd.logEventFactory(printer(printer)));
     
     for(int i = 0; i < 100_000; i++) {
       logger.error(() -> "message");
       if (i == 20_000) {
-        LoggerConfig.fromClass(clazz).update(opt -> opt.enable(false));
+        LoggerConfig.fromClass(clazz).update(upd -> upd.enable(false));
         printer.disable = true;
       }
     }

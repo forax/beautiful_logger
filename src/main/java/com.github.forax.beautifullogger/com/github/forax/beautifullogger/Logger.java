@@ -67,7 +67,7 @@ public interface Logger {
    *
    * All methods of {@link Logger} are emitted with a a log level
    * corresponding to name of the method, the configuration level
-   * of a Logger can be changed using {@link LoggerConfig#update(Consumer) logConfig.update(opt -> opt.level(aLevel))}.
+   * of a Logger can be changed using {@link LoggerConfig#update(Consumer) logConfig.update(upd -> upd.level(aLevel))}.
    * 
    * @see LoggerConfig#level()
    */

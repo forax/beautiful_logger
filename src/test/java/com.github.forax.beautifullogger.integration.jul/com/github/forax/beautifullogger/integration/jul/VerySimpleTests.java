@@ -13,13 +13,13 @@ class VerySimpleTests {
   @Test
   void justAVerySimpleTest() {
     LoggerConfig config = LoggerConfig.fromClass(VerySimpleTests.class);
-    config.update(opt -> opt.logEventFactory(LogEventFactory.julFactory()));
+    config.update(upd -> upd.logEventFactory(LogEventFactory.julFactory()));
     
     for(int i = 0; i < 10; i++) {
       LOGGER.error((int value) -> "message " + value, i);
       
       if (i == 1) {
-        config.update(opt -> opt.enable(false));
+        config.update(upd -> upd.enable(false));
       }
     }
   }
