@@ -4,7 +4,7 @@ import static com.github.forax.pro.builder.Builders.*;
 resolver.
     dependencies(list(
         // ASM
-        "org.objectweb.asm=org.ow2.asm:asm:6.0",
+        "org.objectweb.asm=org.ow2.asm:asm:6.1.1",
         
         // JUnit
         "org.junit.jupiter.api=org.junit.jupiter:junit-jupiter-api:5.1.0",
