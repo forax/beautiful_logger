@@ -23,7 +23,7 @@ import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
  * import com.github.forax.beautifullogger.Logger;
  *
  * class Example {
- *   private static final Logger LOGGER = Logger.getLogger();
+ *   private static final Logger LOGGER = Logger.getLogger(Example.class);
  *   
  *   ...
  * </pre>
@@ -323,10 +323,10 @@ public interface Logger {
    * 
    * @see LoggerConfig#fromClass(Class)
    */
-  public static Logger getLogger() {
+  /*public static Logger getLogger() {  //TODO re-enable when adding Java 8 support
     Class<?> declaringClass = LoggerImpl.StackWalkerHolder.STACK_WALKER.getCallerClass();
     return getLogger(declaringClass, LoggerImpl.EMPTY_CONSUMER);
-  }
+  }*/
   
   /**
    * Create a logger with the configuration of the configClass.

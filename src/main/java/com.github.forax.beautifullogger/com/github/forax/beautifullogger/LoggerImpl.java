@@ -4,7 +4,6 @@ import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.EN
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.LEVEL_CONF;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.LOGEVENTFACTORY_CONF;
 import static java.lang.invoke.MethodHandles.dropArguments;
-import static java.lang.invoke.MethodHandles.empty;
 import static java.lang.invoke.MethodHandles.exactInvoker;
 import static java.lang.invoke.MethodHandles.filterArguments;
 import static java.lang.invoke.MethodHandles.foldArguments;
@@ -17,7 +16,6 @@ import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 import static java.util.Collections.nCopies;
-import static java.util.Map.entry;
 
 import java.lang.StackWalker.Option;
 import java.lang.invoke.MethodHandle;
@@ -29,9 +27,12 @@ import java.lang.invoke.SwitchPoint;
 import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.Field;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,6 +53,18 @@ import com.github.forax.beautifullogger.LoggerConfig.LogEventFactory;
 import sun.misc.Unsafe;
 
 class LoggerImpl {
+  static final boolean IS_JAVA_8;
+  static {
+    boolean isJava8;
+    try {
+      Class.forName("java.lang.StackWalker");
+      isJava8 = false;
+    } catch (ClassNotFoundException e) {
+      isJava8 = true;
+    }
+    IS_JAVA_8 = isJava8;
+  }
+  
   static class StackWalkerHolder {
     static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
   }
@@ -75,12 +88,13 @@ class LoggerImpl {
   
   private static class CS extends MutableCallSite {
     private static final MethodType PRINTING_TYPE = methodType(void.class, String.class, Level.class, Throwable.class);
-    private static final MethodHandle FALLBACK;
+    private static final MethodHandle FALLBACK, NOP;
     private static final MethodHandle[] CHECK_LEVELS;
     static {
       Lookup lookup = lookup();
       try {
         FALLBACK = lookup.findVirtual(CS.class, "fallback", methodType(MethodHandle.class, Level.class,  Throwable.class, Object.class, Object[].class));
+        NOP = lookup.findStatic(CS.class, "nop", methodType(void.class));
         
         MethodHandle[] checkLevels = new MethodHandle[Level.LEVELS.length];
         for(int i = 0; i < checkLevels.length; i++) {
@@ -105,6 +119,11 @@ class LoggerImpl {
       setTarget(fallback);
     }
     
+    private static MethodHandle empty_void(MethodType methodType) {
+      // return MethodHandles.empty(methodType);
+      return MethodHandles.dropArguments(NOP, 0, methodType.parameterList());
+    }
+    
     @SuppressWarnings("unused")
     private MethodHandle fallback(Level level, Throwable context, Object messageProvider, Object[] args) {
       Objects.requireNonNull(level, "level is null");
@@ -115,7 +134,7 @@ class LoggerImpl {
       boolean enable = ENABLE_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints).orElse(true);
       
       MethodHandle target;
-      MethodHandle empty = empty(type());
+      MethodHandle empty = empty_void(type());
       if (enable) {
         // get configuration 'printFactory' 
         LogEventFactory logEventFactory = LOGEVENTFACTORY_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints)
@@ -156,6 +175,10 @@ class LoggerImpl {
       return result;
     }
     
+    @SuppressWarnings("unused")
+    private static void nop() {
+      // does nothing !
+    }
     
     // use one method checkLevel* by level to allow JITs to remove those checks 
     
@@ -260,7 +283,7 @@ class LoggerImpl {
   }
   
   
-  private static final List<Entry<Class<?>, MethodHandle>> MESSAGE_PROVIDERS = List.of(
+  private static final List<Entry<Class<?>, MethodHandle>> MESSAGE_PROVIDERS = Arrays.asList(
       findVirtualMethod(Supplier.class,       "get",   methodType(String.class)),
       findVirtualMethod(IntFunction.class,    "apply", methodType(String.class, int.class)),
       findVirtualMethod(LongFunction.class,   "apply", methodType(String.class, long.class)),
@@ -268,6 +291,10 @@ class LoggerImpl {
       findVirtualMethod(Function.class,       "apply", methodType(String.class, Object.class)),
       findVirtualMethod(BiFunction.class,     "apply", methodType(String.class, Object.class, Object.class)),
       entry(String.class, identity(Object.class).asType(methodType(String.class, Object.class))));
+  
+  private static Map.Entry<Class<?>, MethodHandle> entry(Class<?> fun, MethodHandle mh) {
+    return new SimpleImmutableEntry<>(fun, mh);
+  }
   
   private static Entry<Class<?>, MethodHandle> findVirtualMethod(Class<?> fun, String name, MethodType type) {
     MethodHandle mh;
@@ -305,10 +332,22 @@ class LoggerImpl {
     return new UndeclaredThrowableException(e);
   }
   
+  static String packageName(Class<?> type) {
+    if (type.isPrimitive()) {
+      return "java.lang";
+    }
+    if (type.isArray()) {
+      return packageName(type.getComponentType());
+    }
+    String name = type.getName();
+    int index = name.lastIndexOf('.');
+    return index == -1? "": name.substring(0, index);
+  }
+  
   enum LoggerConfigKind {
     CLASS(Class::getName),
-    PACKAGE(Class::getPackageName),
-    MODULE(type -> type.getModule().getName());
+    PACKAGE(type -> IS_JAVA_8? packageName(type): type.getPackageName()),
+    MODULE(type -> IS_JAVA_8? null: type.getModule().getName());
     
     private final Function<Class<?>, String> nameExtractor;
     
@@ -320,6 +359,7 @@ class LoggerImpl {
       return name() + ';' + name;
     }
     
+    // may return null !
     String extractNameFromClass(Class<?> type) {
       return nameExtractor.apply(type);
     }
@@ -341,6 +381,9 @@ class LoggerImpl {
     Optional<T> findValueAndCollectSwitchPoints(Class<?> type, Set<SwitchPoint> switchPoints) {
       for(LoggerConfigKind kind: LoggerConfigKind.VALUES) {
         String name = kind.extractNameFromClass(type);
+        if (name == null) {  // unnamed module or no module (Java 8)
+          continue;
+        }
         LoggerConfigImpl loggerConfig = configFrom(kind, name);
         switchPoints.add(loggerConfig.switchPoint());
         Optional<T> value = extractor.apply(loggerConfig);

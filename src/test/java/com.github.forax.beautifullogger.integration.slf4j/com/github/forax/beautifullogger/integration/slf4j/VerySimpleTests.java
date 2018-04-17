@@ -8,7 +8,7 @@ import com.github.forax.beautifullogger.LoggerConfig.LogEventFactory;
 
 @SuppressWarnings("static-method")
 class VerySimpleTests {
-  private static final Logger LOGGER = Logger.getLogger();
+  private static final Logger LOGGER = Logger.getLogger(VerySimpleTests.class);
   
   @Test
   void justAVerySimpleTest() {

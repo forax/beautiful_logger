@@ -39,6 +39,11 @@ compiler.
         "--processor-module-path", "deps",     // enable JMH annotation processor
         "--default-module-for-created-files", "com.github.forax.beautifullogger.perf"
     ))
+
+runner.
+  modulePath(path("target/main/exploded", "deps")).
+  module("com.github.forax.beautifullogger.tool/com.github.forax.beautifullogger.tool.Rewriter").
+  mainArguments(list("target/main/exploded/com.github.forax.beautifullogger"))
   
 docer.
   quiet(true).
@@ -53,7 +58,7 @@ packager.
         "com.github.forax.beautifullogger.integration.slf4jj@0.9.6"
     ))
 
-run(resolver, modulefixer, compiler, tester, docer, packager)
+run(resolver, modulefixer, compiler, runner, tester, docer, packager)
 
 pro.arguments().forEach(plugin -> run(plugin))   // run command line defined plugins
 

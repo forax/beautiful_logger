@@ -15,7 +15,7 @@ import com.github.forax.beautifullogger.Logger.Level;
 /**
  * The configuration of a {@link Logger}.
  * 
- * The configuration can be set on a {@link LoggerConfig#fromModule(Module) module},
+ * The configuration can be set on a {@link LoggerConfig#fromModule(String) module},
  * a {@link LoggerConfig#fromPackage(Package) package} or
  * a {@link LoggerConfig#fromClass(Class) class}.
  * When a logger read a configuration property, it first tries to read the configuration property
@@ -252,9 +252,9 @@ public interface LoggerConfig {
   * @return the  configuration associated with the configuration module.
   * @throws NullPointerException if the configuration module is null.
   */
-  static LoggerConfig fromModule(Module module) {
+  /*static LoggerConfig fromModule(Module module) {  // Removed because of Java 8 support
     return fromModule(module.getName());  // implicit null check
-  }
+  }*/
   /**
    * Returns the configuration associated with the configuration module.
    * @param moduleName the configuration module name.
