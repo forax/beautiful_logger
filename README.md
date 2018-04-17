@@ -1,28 +1,25 @@
 # beautiful_logger [![](https://api.travis-ci.org/forax/beautiful_logger.svg?branch=master)](https://travis-ci.org/forax/beautiful_logger)
 Yet another logger API in Java with beautiful features
 
-With Java 9 comes with the Java System.Logger API ([JEP 264](http://openjdk.java.net/jeps/264))
-that allows to plug any logging libraries (any LoggerFinder) as a backend but defined a straw API.
-
-beautiful_logger is a mostly-zero-overhead wrapper on top the System.Logger API with a familiar API (info, error, etc)
+beautiful_logger is a mostly-zero-overhead wrapper on top most of the used logging API with a familiar API (info, error, etc)
 that let you configure/re-configure the logger dynamically in a programmatic way.
 
-This library required Java 9 and obviously is fully Java 9 compatible.
+This library requires Java 8 and is fully module compatible (Java 9).
 
 The javadoc of the latest version is [available online](https://jitpack.io/com/github/forax/beautiful_logger/master-SNAPSHOT/javadoc/).
 
 ## Features
 - *real* zero cost (no allocation, no branch, no assembly code) if a logger is disabled
-- zero overhead cost when delegating to the logging libraries you already use (Log4J, Logback, etc)
+- zero overhead cost when delegating to the logging libraries you already use, SLF4J, Log4J, Logback or JUL, SystemLogger [JEP 264](http://openjdk.java.net/jeps/264).
 - allow user defined Log services to higher up your logging practice
-- dynamic configuration/re-configuration without using slow dependency injection libs
+- dynamic configuration/re-configuration which doesn't use costly inter-thread signaling
 - no configuration file, no XML, etc, everything is done programmatically
 - very small modular jar
 
 
 ## Why another logging API ?
 
-Because no other existing logging libraries provide at least one of features listed above. 
+Technically it's more a facade like SLF4J, because no other existing logging libraries provide at least one of features listed above. 
 
 
 ## Why do you claim that there is no overhead ?
@@ -38,7 +35,7 @@ The main drawback is that it put more pressure to the JITs so it may lengthen th
 import com.github.forax.beautifullogger.Logger;
 
 class Example {
-  // getLogger with no argument uses the current class as configuration
+  // getLogger with no argument uses the current class as configuration class
   private static final Logger LOGGER = Logger.getLogger();
   
   public static void main(String[] args) {
