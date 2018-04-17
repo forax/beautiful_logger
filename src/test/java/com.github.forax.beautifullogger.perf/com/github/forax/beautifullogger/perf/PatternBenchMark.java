@@ -20,16 +20,15 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-@SuppressWarnings("static-method")
+/*@SuppressWarnings("static-method")
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(3)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-@State(Scope.Benchmark)
+@State(Scope.Benchmark)*/
 public class PatternBenchMark {
-  /*
-  static class SimpleLogger {
+  /*static class SimpleLogger {
     enum Level {
       WARNING, DEBUG
     }
@@ -74,7 +73,6 @@ public class PatternBenchMark {
   private static final SimpleLogger LOGGER =
       new SimpleLogger(SimpleLogger.Level.WARNING);
   */
-  
   private static final org.apache.logging.log4j.Logger LOGGER =
       org.apache.logging.log4j.LogManager.getLogger(LoggerDisabledBenchMark.class);
   
