@@ -120,8 +120,10 @@ class LoggerImpl {
     }
     
     private static MethodHandle empty_void(MethodType methodType) {
-      // return MethodHandles.empty(methodType);
-      return MethodHandles.dropArguments(NOP, 0, methodType.parameterList());
+      if (IS_JAVA_8) {
+        return MethodHandles.dropArguments(NOP, 0, methodType.parameterList());  
+      }
+      return MethodHandles.empty(methodType);
     }
     
     @SuppressWarnings("unused")
