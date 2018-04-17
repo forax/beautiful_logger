@@ -3,6 +3,7 @@ module com.github.forax.beautifullogger {
   
   requires static org.apache.logging.log4j;  // LOG4J support
   requires static org.slf4j;                 // SLF4J support
+  requires static java.logging;              // JUL support
   
   exports com.github.forax.beautifullogger;
 }

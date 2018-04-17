@@ -662,6 +662,47 @@ class LoggerImpl {
     }
   }
   
+  static class JULFactoryImpl {
+    static final MethodHandle JUL_LOGGER;
+    static {
+      Lookup lookup = MethodHandles.lookup();
+      MethodHandle mh, filter;
+      try {
+        mh = lookup.findVirtual(java.util.logging.Logger.class, "log",
+            methodType(void.class, java.util.logging.Level.class, String.class, Throwable.class));
+        filter = lookup.findStatic(JULFactoryImpl.class, "level",
+            methodType(java.util.logging.Level.class, Level.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+      mh = filterArguments(mh, 1, filter);
+      JUL_LOGGER = permuteArguments(mh,
+          methodType(void.class, java.util.logging.Logger.class, String.class, Level.class, Throwable.class),
+          new int[] { 0, 2, 1, 3});
+    }
+    
+    @SuppressWarnings("unused")
+    private static java.util.logging.Level level(Level level) {
+      // do not use a switch here, we want this code to be inlined !
+      if (level == Level.ERROR) {
+        return java.util.logging.Level.SEVERE;
+      }
+      if (level == Level.WARNING) {
+        return java.util.logging.Level.WARNING;
+      }
+      if (level == Level.INFO) {
+        return java.util.logging.Level.INFO;
+      }
+      if (level == Level.DEBUG) {
+        return java.util.logging.Level.FINE;
+      }
+      if (level == Level.TRACE) {
+        return java.util.logging.Level.FINER;
+      }
+      throw newIllegalStateException();
+    }
+  }
+  
   static IllegalStateException newIllegalStateException() {
     return new IllegalStateException("unknown level");
   }

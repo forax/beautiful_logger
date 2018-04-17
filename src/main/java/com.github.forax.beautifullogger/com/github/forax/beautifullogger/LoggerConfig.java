@@ -92,7 +92,12 @@ public interface LoggerConfig {
       /**
        * The System.Logger strategy.
        */
-      SYSTEM_LOGGER(Optional.of(LogEventFactory.systemLoggerFactory()))
+      SYSTEM_LOGGER(Optional.of(LogEventFactory.systemLoggerFactory()).filter(__ -> isAvailable("java.lang.System.Logger"))),
+      
+      /**
+       * The java.util.logging strategy.
+       */
+      JUL(Optional.of(LogEventFactory.julFactory()).filter(__ -> isAvailable("java.util.logging.Logger")))
       ;
       
       final Optional<LogEventFactory> factory;
@@ -110,12 +115,13 @@ public interface LoggerConfig {
         }
       }
       
-      static final LogEventFactory DEFAULT_FACTORY = fromStrategies(SLF4J, LOG4J, SYSTEM_LOGGER);
+      static final LogEventFactory DEFAULT_FACTORY = fromStrategies(SLF4J, LOG4J, SYSTEM_LOGGER, JUL);
     }
     
     /**
-     * Return the first available LogEventFactory among {@link Strategy#SLF4J}, {@link Strategy#LOG4J} and {@link Strategy#SYSTEM_LOGGER}.
-     * This call is equivalent to {@link LogEventFactory#fromStrategies(Strategy...) fromStrategies(SLF4J, LOG4J, SYSTEM_LOGGER)}.
+     * Return the first available LogEventFactory among {@link Strategy#SLF4J}, {@link Strategy#LOG4J},
+     * {@link Strategy#SYSTEM_LOGGER} and {@link Strategy#JUL}.
+     * This call is equivalent to {@link LogEventFactory#fromStrategies(Strategy...) fromStrategies(SLF4J, LOG4J, SYSTEM_LOGGER, JUL)}.
      * @return the first available LogEventFactory.
      */
     static LogEventFactory defaultFactory() {
@@ -127,9 +133,10 @@ public interface LoggerConfig {
      * or default to the {@link #systemLoggerFactory()}.
      * @param strategies the strategy to pick in order.
      * @return the first LogEventFactory available.  
+     * @throws IllegalStateException if no LogEventFactory is available. 
      */
     static LogEventFactory fromStrategies(Strategy... strategies) {
-      return Arrays.stream(strategies).flatMap(s -> s.factory.stream()).findFirst().orElseGet(LogEventFactory::systemLoggerFactory);
+      return Arrays.stream(strategies).flatMap(s -> s.factory.stream()).findFirst().orElseThrow(() -> new IllegalStateException("no available LogEventFactory"));
     }
     
     /**
@@ -150,10 +157,18 @@ public interface LoggerConfig {
     
     /**
      * Returns a LogEventFactory that uses the {@link java.lang.System.Logger system logger}.
-     * @return a new PrintFactory that delegate the logging to the {@link java.lang.System.Logger system logger}.
+     * @return a new LogEventFactory that delegate the logging to the {@link java.lang.System.Logger system logger}.
      */
     static LogEventFactory systemLoggerFactory() {
       return configClass -> LoggerImpl.SystemLoggerFactoryImpl.SYSTEM_LOGGER.bindTo(System.getLogger(configClass.getName()));
+    }
+    
+    /**
+     * Returns a LogEventFactory that uses java.util.logging to log events.
+     * @return a LogEventFactory that uses java.util.logging to log events.
+     */
+    static LogEventFactory julFactory() {
+      return configClass -> LoggerImpl.JULFactoryImpl.JUL_LOGGER.bindTo(java.util.logging.Logger.getLogger(configClass.getName()));
     }
   }
   
