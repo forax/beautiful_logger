@@ -325,8 +325,9 @@ public interface Logger {
    */
   public static Logger getLogger() {
     Class<?> declaringClass = LoggerImpl.IS_JAVA_8?
-        LoggerImpl.getCallerClass():
+        LoggerImpl.GetCallerHolder.getCallerClass():
         LoggerImpl.StackWalkerHolder.STACK_WALKER.getCallerClass();
+    System.out.println("found declaring class " + declaringClass);
     return getLogger(declaringClass, LoggerImpl.EMPTY_CONSUMER);
   }
   
