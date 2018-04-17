@@ -1,10 +1,10 @@
 # beautiful_logger [![](https://api.travis-ci.org/forax/beautiful_logger.svg?branch=master)](https://travis-ci.org/forax/beautiful_logger)
 Yet another logger API in Java with beautiful features
 
-beautiful_logger is a mostly-zero-overhead wrapper on top most of the used logging API with a familiar API (info, error, etc)
+beautiful_logger is a mostly-zero-overhead wrapper on top of the existing logging implementations with a familiar API (info, error, etc)
 that let you configure/re-configure the logger dynamically in a programmatic way.
 
-This library requires Java 8 and is fully module compatible (Java 9).
+This library requires Java 8 and is fully compatible with Java 9 modules.
 
 The javadoc of the latest version is [available online](https://jitpack.io/com/github/forax/beautiful_logger/master-SNAPSHOT/javadoc/).
 
@@ -19,7 +19,8 @@ The javadoc of the latest version is [available online](https://jitpack.io/com/g
 
 ## Why another logging API ?
 
-Technically it's more a facade like SLF4J, because no other existing logging libraries provide at least one of features listed above. 
+Technically it's more a facade like SLF4J, anyway, beautiful_logger exists because no other existing logging libraries
+provide at least one of features listed above. 
 
 
 ## Why do you claim that there is no overhead ?
