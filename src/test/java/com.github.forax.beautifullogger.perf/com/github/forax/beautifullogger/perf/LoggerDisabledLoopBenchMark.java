@@ -33,7 +33,7 @@ public class LoggerDisabledLoopBenchMark {
   private static final java.util.logging.Logger JUL_LOGGER =
       java.util.logging.Logger.getLogger(LoggerDisabledLoopBenchMark.class.getName());
   private static final com.github.forax.beautifullogger.Logger BEAUTIFUL_LOGGER =
-      com.github.forax.beautifullogger.Logger.getLogger(LoggerDisabledBenchMark.class);
+      com.github.forax.beautifullogger.Logger.getLogger();
   
   static final int ARRAY_SIZE = 1 << 20;
   final int[] array = new int[ARRAY_SIZE];

@@ -178,7 +178,7 @@ public class LoggerDisabledBenchMark {
   private static final CoreFakeLogger FAKE_LOGGER =
       new CoreFakeLogger(org.apache.logging.log4j.Level.WARN);
   private static final com.github.forax.beautifullogger.Logger BEAUTIFUL_LOGGER =
-      com.github.forax.beautifullogger.Logger.getLogger(LoggerDisabledBenchMark.class);
+      com.github.forax.beautifullogger.Logger.getLogger();
 
   @Benchmark
   public void no_op() {

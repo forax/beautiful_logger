@@ -27,8 +27,8 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Benchmark)*/
-public class PatternBenchMark {
-  /*static class SimpleLogger {
+/*public class PatternBenchMark {
+  static class SimpleLogger {
     enum Level {
       WARNING, DEBUG
     }
@@ -72,7 +72,7 @@ public class PatternBenchMark {
   
   private static final SimpleLogger LOGGER =
       new SimpleLogger(SimpleLogger.Level.WARNING);
-  */
+  
   private static final org.apache.logging.log4j.Logger LOGGER =
       org.apache.logging.log4j.LogManager.getLogger(LoggerDisabledBenchMark.class);
   
@@ -109,10 +109,10 @@ public class PatternBenchMark {
     });
   }
   
-  /*@Benchmark
+  @Benchmark
   public void logger_lambda_function() {
     LOGGER.debug(value, _value -> "processor count " + _value);
-  }*/
+  }
   
   @Benchmark
   public void logger_format() {
@@ -123,4 +123,4 @@ public class PatternBenchMark {
     Options opt = new OptionsBuilder().include(PatternBenchMark.class.getName()).build();
     new Runner(opt).run();
   }
-}
+}*/

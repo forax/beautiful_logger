@@ -51,6 +51,7 @@ import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
 import com.github.forax.beautifullogger.LoggerConfig.LogEventFactory;
 
 import sun.misc.Unsafe;
+import sun.reflect.Reflection;
 
 class LoggerImpl {
   static final boolean IS_JAVA_8;
@@ -67,6 +68,11 @@ class LoggerImpl {
   
   static class StackWalkerHolder {
     static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+  }
+  
+  @SuppressWarnings("deprecation")
+  static Class<?> getCallerClass() {
+    return Reflection.getCallerClass(2);
   }
   
   private static class None {

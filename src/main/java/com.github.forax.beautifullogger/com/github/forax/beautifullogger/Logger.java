@@ -323,10 +323,12 @@ public interface Logger {
    * 
    * @see LoggerConfig#fromClass(Class)
    */
-  /*public static Logger getLogger() {  //TODO re-enable when adding Java 8 support
-    Class<?> declaringClass = LoggerImpl.StackWalkerHolder.STACK_WALKER.getCallerClass();
+  public static Logger getLogger() {
+    Class<?> declaringClass = LoggerImpl.IS_JAVA_8?
+        LoggerImpl.getCallerClass():
+        LoggerImpl.StackWalkerHolder.STACK_WALKER.getCallerClass();
     return getLogger(declaringClass, LoggerImpl.EMPTY_CONSUMER);
-  }*/
+  }
   
   /**
    * Create a logger with the configuration of the configClass.
