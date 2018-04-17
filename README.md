@@ -14,7 +14,7 @@ The javadoc of the latest version is [available online](https://jitpack.io/com/g
 - allow user defined Log services to higher up your logging practice
 - dynamic configuration/re-configuration which doesn't use costly inter-thread signaling
 - no configuration file, no XML, etc, everything is done programmatically
-- very small modular jar
+- very small modular jar with no dependency
 
 
 ## Why another logging API ?
