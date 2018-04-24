@@ -84,7 +84,7 @@ public class LoggerGenerator {
     generateOverride(writer,
         Paths.get("target/main/exploded/com.github.forax.beautifullogger/com/github/forax/beautifullogger/Logger.class"));
     generateOverride(writer,
-        Paths.get("target/main/exploded/com.github.forax.beautifullogger/com/github/forax/beautifullogger/LogServiceSPI$LogService.class"));
+        Paths.get("target/main/exploded/com.github.forax.beautifullogger/com/github/forax/beautifullogger/LogService.class"));
     
     writer.visitEnd();
     
