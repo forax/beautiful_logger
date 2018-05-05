@@ -28,11 +28,18 @@ resolver.
         "java.activation=javax.activation:activation:1.1.1",
         "java.mail=com.sun.mail:javax.mail:1.6.1",
         "ch.qos.logback.classic=ch.qos.logback:logback-classic:1.3.0-alpha4",
-        "ch.qos.logback.core=ch.qos.logback:logback-core:1.3.0-alpha4"
+        "ch.qos.logback.core=ch.qos.logback:logback-core:1.3.0-alpha4",
+        
+        // Google Flogger
+        "com.google.common.flogger=com.google.flogger:flogger:0.1,com.google.flogger:flogger-system-backend:0.1",
+        "javax.annotation=com.google.code.findbugs:jsr305:3.0.1"
     ))
     
 modulefixer.
-  additionalRequires(list("org.apache.logging.log4j.core=java.activation/true"))
+  additionalRequires(list(
+    "org.apache.logging.log4j.core=java.activation/true",
+    "com.google.common.flogger=com.google.common.flogger.system.backend/false"
+  ))
 
 compiler.
     rawArguments(list(

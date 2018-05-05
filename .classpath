@@ -23,10 +23,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry excluding="module-info.java" kind="src" output="eclipse-output/test/jul/classes" path="src/test/java/com.github.forax.beautifullogger.integration.jul">
-	    <attributes>
-            <attribute name="test" value="true"/>
-        </attributes>
-    </classpathentry>
+		<attributes>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-9">
 		<attributes>
 			<attribute name="module" value="true"/>
@@ -48,6 +48,11 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="deps/org.slf4j.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="deps/com.google.common.flogger.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>

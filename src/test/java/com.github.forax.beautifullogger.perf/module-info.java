@@ -7,6 +7,7 @@ module com.github.forax.beautifullogger.perf {
   requires org.slf4j;
   requires ch.qos.logback.classic;
   requires java.logging;
+  requires com.google.common.flogger;
   
   exports com.github.forax.beautifullogger.perf.generated;  // export JMH generated package 
 }

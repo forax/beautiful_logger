@@ -32,6 +32,8 @@ public class LoggerDisabledLoopBenchMark {
       org.slf4j.LoggerFactory.getLogger(LoggerDisabledLoopBenchMark.class);
   private static final java.util.logging.Logger JUL_LOGGER =
       java.util.logging.Logger.getLogger(LoggerDisabledLoopBenchMark.class.getName());
+  private static final com.google.common.flogger.FluentLogger FLUENT_LOGGER =
+      com.google.common.flogger.FluentLogger.forEnclosingClass();
   private static final com.github.forax.beautifullogger.Logger BEAUTIFUL_LOGGER =
       com.github.forax.beautifullogger.Logger.getLogger();
   
@@ -84,6 +86,16 @@ public class LoggerDisabledLoopBenchMark {
   }
   
   @Benchmark
+  public int logback_foreach_sum() {
+    int sum = 0;
+    for(int value: array) {
+      sum += value;
+      LOGBACK_LOGGER.debug("should not be printed !");
+    }
+    return sum;
+  }
+  
+  @Benchmark
   public int jul_foreach_sum() {
     int sum = 0;
     for(int value: array) {
@@ -104,11 +116,21 @@ public class LoggerDisabledLoopBenchMark {
   }
   
   @Benchmark
-  public int logback_foreach_sum() {
+  public int flogger_foreach_sum() {
     int sum = 0;
     for(int value: array) {
       sum += value;
-      LOGBACK_LOGGER.debug("should not be printed !");
+      FLUENT_LOGGER.atFine().log("should not be printed !");
+    }
+    return sum;
+  }
+  
+  @Benchmark
+  public int flogger_sum() {
+    int sum = 0;
+    for(int i = 0; i < array.length; i++) {
+      sum += array[i];
+      FLUENT_LOGGER.atFine().log("should not be printed !");
     }
     return sum;
   }

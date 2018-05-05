@@ -171,6 +171,8 @@ public class LoggerDisabledBenchMark {
       org.slf4j.LoggerFactory.getLogger(LoggerDisabledLoopBenchMark.class);
   private static final java.util.logging.Logger JUL_LOGGER =
       java.util.logging.Logger.getLogger(LoggerDisabledLoopBenchMark.class.getName());
+  private static final com.google.common.flogger.FluentLogger FLUENT_LOGGER =
+      com.google.common.flogger.FluentLogger.forEnclosingClass();
   private static final LevelLogger LEVEL_LOGGER =
       new LevelLogger(LevelLogger.Level.WARNING);
   private static final LambdaLogger LAMBDA_LOGGER =
@@ -227,6 +229,11 @@ public class LoggerDisabledBenchMark {
   @Benchmark
   public void jul_disable_lambda() {
     JUL_LOGGER.fine("should not be printed !");
+  }
+  
+  @Benchmark
+  public void flogger_disable_lambda() {
+    FLUENT_LOGGER.atFine().log("should not be printed !");
   }
   
   @Benchmark
