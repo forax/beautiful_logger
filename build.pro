@@ -37,8 +37,7 @@ resolver.
     
 modulefixer.
   additionalRequires(list(
-    "org.apache.logging.log4j.core=java.activation/true",
-    "com.google.common.flogger=com.google.common.flogger.system.backend/false"
+    "org.apache.logging.log4j.core=java.activation/true"
   ))
 
 compiler.
