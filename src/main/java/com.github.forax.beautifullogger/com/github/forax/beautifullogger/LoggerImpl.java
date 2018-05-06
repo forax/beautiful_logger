@@ -27,7 +27,6 @@ import java.lang.invoke.SwitchPoint;
 import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
@@ -61,7 +60,7 @@ class LoggerImpl {
     try {
       Class.forName("java.lang.StackWalker");
       isJava8 = false;
-    } catch (ClassNotFoundException e) {
+    } catch (@SuppressWarnings("unused") ClassNotFoundException e) {
       isJava8 = true;
     }
     IS_JAVA_8 = isJava8;
