@@ -25,6 +25,7 @@ import com.github.forax.beautifullogger.Logger.Level;
 @SuppressWarnings("static-method")
 class LoggerLevelTests {
 
+  @SuppressWarnings("unused")
   private static Stream<Arguments> logNullThrowableAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
         entry(l -> l.debug("hello", null),   Level.DEBUG),
@@ -52,6 +53,7 @@ class LoggerLevelTests {
     assertTrue(marked[0]);
   }
   
+  @SuppressWarnings("unused")
   private static Stream<Arguments> logThrowableAndLevelPairSource() {
     List<Entry<BiConsumer<Logger, Throwable>, Level>> list = List.of(
         entry((l, t) -> l.debug("exception", t),   Level.DEBUG),
@@ -79,6 +81,7 @@ class LoggerLevelTests {
     assertTrue(marked[0]);
   }
   
+  @SuppressWarnings("unused")
   private static Stream<Arguments> logSupplierAndLevelPairSource() {
     List<Entry<BiConsumer<Logger, Supplier<String>>, Level>> list = List.of(
         entry(Logger::debug,   Level.DEBUG),
@@ -158,6 +161,7 @@ class LoggerLevelTests {
     assertTrue(marked[0]);
   }
 
+  @SuppressWarnings("unused")
   private static Stream<Arguments> logDoubleFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
         entry(l -> l.debug(Double::toString, 3.0),   Level.DEBUG),
@@ -184,6 +188,7 @@ class LoggerLevelTests {
     assertTrue(marked[0]);
   }
   
+  @SuppressWarnings("unused")
   private static Stream<Arguments> logFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
         entry(l -> l.debug(x -> x, "bar"),   Level.DEBUG),
@@ -210,6 +215,7 @@ class LoggerLevelTests {
     assertTrue(marked[0]);
   }
   
+  @SuppressWarnings("unused")
   private static Stream<Arguments> logBiFunctionAndLevelPairSource() {
     List<Entry<Consumer<Logger>, Level>> list = List.of(
         entry(l -> l.debug((a, b) -> a + b, "foo", "bar"),   Level.DEBUG),
