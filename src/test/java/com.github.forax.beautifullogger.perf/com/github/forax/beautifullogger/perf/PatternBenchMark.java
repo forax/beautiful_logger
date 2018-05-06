@@ -1,5 +1,6 @@
 package com.github.forax.beautifullogger.perf;
 
+/*
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
@@ -20,7 +21,7 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-/*@SuppressWarnings("static-method")
+@SuppressWarnings("static-method")
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(3)

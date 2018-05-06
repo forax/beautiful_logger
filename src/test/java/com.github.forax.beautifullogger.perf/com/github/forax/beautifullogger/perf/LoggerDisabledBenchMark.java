@@ -139,11 +139,13 @@ public class LoggerDisabledBenchMark {
       };*/
     }
     
+    
+    @SuppressWarnings("unused")
     private static boolean isWarning(Level l) {
       return l == Level.WARNING;
     }
     
-    public static MethodHandle getLoggingMethodHandle(Class<?> configClass) {
+    public static MethodHandle getLoggingMethodHandle(@SuppressWarnings("unused") Class<?> configClass) {
       Lookup lookup = MethodHandles.lookup();
       MethodHandle mh;
       try {
