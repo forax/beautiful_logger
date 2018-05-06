@@ -57,7 +57,7 @@ docer.
   link(uri("https://docs.oracle.com/javase/9/docs/api/"))
 
 packager.
-    moduleMetadata(list(
+    modules(list(
         "com.github.forax.beautifullogger@0.9.7",
         "com.github.forax.beautifullogger.tool@0.9.7",
         "com.github.forax.beautifullogger.perf@0.9.7",
