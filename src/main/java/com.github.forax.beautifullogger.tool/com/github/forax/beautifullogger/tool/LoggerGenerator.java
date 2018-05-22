@@ -25,7 +25,7 @@ import static org.objectweb.asm.Opcodes.LLOAD;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.V9;
+import static org.objectweb.asm.Opcodes.V1_8;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,7 +47,7 @@ public class LoggerGenerator {
     // reserve slot 1 of the constant pool (see LoggerServiceSPI)
     writer.newClass("com/github/forax/beautifullogger/Logger");
     
-    writer.visit(V9, ACC_SUPER,
+    writer.visit(V1_8, ACC_SUPER,
         "com/github/forax/beautifullogger/Logger$Stub", null,
         "java/lang/Object",
         new String[] {"com/github/forax/beautifullogger/Logger"});
@@ -91,7 +91,7 @@ public class LoggerGenerator {
     byte[] array = writer.toByteArray();
     
     //DEBUG
-    Files.write(Paths.get("Logger$Stub.class"), array);
+    //Files.write(Paths.get("Logger$Stub.class"), array);
     
     String data = new String(Base64.getEncoder().encode(array), ISO_8859_1);
     System.out.println(data);

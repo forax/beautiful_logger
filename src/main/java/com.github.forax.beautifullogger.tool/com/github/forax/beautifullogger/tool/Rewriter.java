@@ -16,8 +16,7 @@ import org.objectweb.asm.Opcodes;
  * Rewrite the bytecode to be Java 8 compatible
  */
 public class Rewriter {
-  private static void rewrite(Path path) throws IOException {
-    byte[] code = Files.readAllBytes(path);
+  public static byte[] rewrite(byte[] code) throws IOException {
     ClassReader reader = new ClassReader(code);
     ClassWriter writer = new ClassWriter(reader, 0);
     
@@ -29,7 +28,7 @@ public class Rewriter {
       }
     }, ClassReader.SKIP_CODE);
     
-    Files.write(path, writer.toByteArray());
+    return writer.toByteArray();
   }
   
   public static void main(String[] args) throws IOException {
@@ -41,7 +40,7 @@ public class Rewriter {
         .filter(path -> path.getFileName().toString().endsWith(".class"))
         .forEach(path -> {
           try {
-            rewrite(path);
+            Files.write(path, rewrite(Files.readAllBytes(path)));
           } catch (IOException e) {
             throw new UncheckedIOException(e);
           }

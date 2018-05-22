@@ -1,8 +1,17 @@
 import static com.github.forax.pro.Pro.*;
 import static com.github.forax.pro.builder.Builders.*;
 
+var rewriter = command(() -> {  // rewrite bytecode to be compatible with 8
+  runner.
+    modulePath(path("target/main/exploded", "deps")).
+    module("com.github.forax.beautifullogger.tool/com.github.forax.beautifullogger.tool.Rewriter").
+    mainArguments(list("target/main/exploded/com.github.forax.beautifullogger"));
+    
+  run(runner);
+});
+
 resolver.
-    //checkForUpdate(true).
+    checkForUpdate(true).
     dependencies(list(
         // ASM
         "org.objectweb.asm=org.ow2.asm:asm:6.1.1",
@@ -47,27 +56,22 @@ compiler.
         "--default-module-for-created-files", "com.github.forax.beautifullogger.perf"
     ))
 
-runner.
-  modulePath(path("target/main/exploded", "deps")).
-  module("com.github.forax.beautifullogger.tool/com.github.forax.beautifullogger.tool.Rewriter").
-  mainArguments(list("target/main/exploded/com.github.forax.beautifullogger"))
-  
 docer.
   quiet(true).
   link(uri("https://docs.oracle.com/javase/9/docs/api/"))
 
 packager.
     modules(list(
-        "com.github.forax.beautifullogger@0.9.7",
-        "com.github.forax.beautifullogger.tool@0.9.7",
-        "com.github.forax.beautifullogger.perf@0.9.7",
-        "com.github.forax.beautifullogger.integration.log4j@0.9.7",
-        "com.github.forax.beautifullogger.integration.slf4jj@0.9.7"
+        "com.github.forax.beautifullogger@0.9.8",
+        "com.github.forax.beautifullogger.tool@0.9.8",
+        "com.github.forax.beautifullogger.perf@0.9.8",
+        "com.github.forax.beautifullogger.integration.log4j@0.9.8",
+        "com.github.forax.beautifullogger.integration.slf4j@0.9.8",
+        "com.github.forax.beautifullogger.integration.jul@0.9.8"
     ))
 
-run(resolver, modulefixer, compiler, runner, tester, docer, packager)
+run(resolver, modulefixer, compiler, rewriter, tester, docer, packager)
 
-pro.arguments().forEach(plugin -> run(plugin))   // run command line defined plugins
-
+pro.arguments().forEach(plugin -> run(plugin))   // run plugins specified on the command line
 
 /exit

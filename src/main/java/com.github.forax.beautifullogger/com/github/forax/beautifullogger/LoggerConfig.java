@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import com.github.forax.beautifullogger.Logger.Level;
 
@@ -136,7 +137,11 @@ public interface LoggerConfig {
      * @throws IllegalStateException if no LogEventFactory is available. 
      */
     static LogEventFactory fromStrategies(Strategy... strategies) {
-      return Arrays.stream(strategies).flatMap(s -> s.factory.stream()).findFirst().orElseThrow(() -> new IllegalStateException("no available LogEventFactory"));
+      return Arrays.stream(strategies).flatMap(s -> asStream(s.factory)).findFirst().orElseThrow(() -> new IllegalStateException("no available LogEventFactory"));
+    }
+    
+    private static <T> Stream<T> asStream(Optional<T> optional) {
+      return optional.isPresent()? Stream.of(optional.get()): Stream.empty();
     }
     
     /**
