@@ -62,12 +62,12 @@ docer.
 
 packager.
     modules(list(
-        "com.github.forax.beautifullogger@0.9.8",
-        "com.github.forax.beautifullogger.tool@0.9.8",
-        "com.github.forax.beautifullogger.perf@0.9.8",
-        "com.github.forax.beautifullogger.integration.log4j@0.9.8",
-        "com.github.forax.beautifullogger.integration.slf4j@0.9.8",
-        "com.github.forax.beautifullogger.integration.jul@0.9.8"
+        "com.github.forax.beautifullogger@0.9.9",
+        "com.github.forax.beautifullogger.tool@0.9.9",
+        "com.github.forax.beautifullogger.perf@0.9.9",
+        "com.github.forax.beautifullogger.integration.log4j@0.9.9",
+        "com.github.forax.beautifullogger.integration.slf4j@0.9.9",
+        "com.github.forax.beautifullogger.integration.jul@0.9.9"
     ))
 
 run(resolver, modulefixer, compiler, rewriter, tester, docer, packager)
