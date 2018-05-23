@@ -42,7 +42,7 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        upd -> upd.level(Level.TRACE).logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.level(Level.TRACE, false).logFacadeFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
@@ -70,7 +70,7 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        upd -> upd.level(Level.TRACE).logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.level(Level.TRACE, false).logFacadeFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
@@ -97,7 +97,7 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        upd -> upd.level(Level.TRACE).logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.level(Level.TRACE, false).logFacadeFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
@@ -123,7 +123,7 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        upd -> upd.level(Level.TRACE).logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.level(Level.TRACE, false).logFacadeFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
@@ -150,7 +150,7 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        upd -> upd.level(Level.TRACE).logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.level(Level.TRACE, false).logFacadeFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
@@ -177,7 +177,7 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        upd -> upd.level(Level.TRACE).logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.level(Level.TRACE, false).logFacadeFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
@@ -204,7 +204,7 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        upd -> upd.level(Level.TRACE).logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.level(Level.TRACE, false).logFacadeFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),
@@ -231,7 +231,7 @@ class LoggerLevelTests {
     boolean[] marked = { false };
     Logger logger = Logger.getLogger(
         new Object() {/*empty*/}.getClass(),
-        upd -> upd.level(Level.TRACE).logEventFactory(printer((message, loggerLevel, context) -> {
+        upd -> upd.level(Level.TRACE, false).logFacadeFactory(printer((message, loggerLevel, context) -> {
           marked[0] = true;
           assertAll(
             () -> assertEquals(level, loggerLevel),

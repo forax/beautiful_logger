@@ -6,6 +6,43 @@
   <artifactId>beautifullogger</artifactId>
   <version>0.9.8</version>
   
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Yet another logger API in Java with beautiful features</description>
+  <url>https://github.com/forax/beautiful_logger</url>
+  
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+  
+  <developers>
+    <developer>
+      <name>Remi Forax</name>
+      <email>forax@univ-mlv.fr</email>
+      <organization>University Paris-East Marne-la-vallee</organization>
+      <organizationUrl>http://www.u-pem.fr/</organizationUrl>
+    </developer>
+  </developers>
+  
+  <scm>
+    <connection>scm:git:git@github.com:forax/beautiful_logger.git</connection>
+    <developerConnection>scm:git:ssh://github.com:forax/beautiful_logger.git</developerConnection>
+    <url>https://github.com/forax/beautiful_logger/blob/master/</url>
+  </scm>
+  
+  <distributionManagement>
+    <snapshotRepository>
+     <id>ossrh</id>
+     <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+     <id>ossrh</id>
+     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <pro.url>https://github.com/forax/pro/releases/download/v0.11%2B13/pro-11.13-linux.tar.gz</pro.url>
@@ -16,12 +53,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.1.0</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   
   <build>
@@ -113,6 +144,20 @@
               <goal>install-file</goal>
             </goals>
             <phase>install</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>

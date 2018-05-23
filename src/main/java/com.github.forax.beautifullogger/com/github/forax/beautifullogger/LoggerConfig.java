@@ -28,7 +28,8 @@ import com.github.forax.beautifullogger.Logger.Level;
  * <table>
  *  <tr><td>enable</td><td>true</td></tr>
  *  <tr><td>level</td><td>{@link Level#INFO}</td></tr>
- *  <tr><td>logEventFactory</td><td>{@link LogEventFactory#defaultFactory()}</td></tr>
+ *  <tr><td>levelOverride</td><td>false</td></tr>
+ *  <tr><td>logEventFactory</td><td>{@link LogFacadeFactory#defaultFactory()}</td></tr>
  *  <caption>default value of the configuration properties</caption>
  * </table>
  * <p>&nbsp;</p>
@@ -49,61 +50,92 @@ import com.github.forax.beautifullogger.Logger.Level;
  * 
  * By example to change the level of a configuration
  * <pre>
- *    config.update(opt -&gt; opt.level(Level.TRACE)); 
+ *    config.update(opt -&gt; opt.level(Level.TRACE, false)); 
  * </pre>
  * 
  */
 public interface LoggerConfig {
   /**
-   * The interface that provides a method handle that can emit
-   * a logging event for a configuration class.
-   * 
-   * @see LoggerConfig#logEventFactory()
-   * @see ConfigOption#logEventFactory(LogEventFactory)
+   * Facade that abstract any loggers.
    */
   @FunctionalInterface
-  interface LogEventFactory {
+  interface LogFacade {
     /**
      * Returns a method handle that can emit a logging event for a configuration class, its method type must be
      * {@link java.lang.invoke.MethodType#methodType(Class, Class[]) MethodType#methodType(void.class, String.class, Level.class, Throwable.class)}.
      * This method is not called for each event but more or less each time
      * the runtime detects that the configuration has changed.
      * 
-     * @param configClass the configuration class.
      * @return a method handle that can emit a logging event.
      */
-    MethodHandle getPrintMethodHandle(Class<?> configClass);
+    MethodHandle getLogMethodHandle();
+    
+    /**
+     * Override the level of the underlying logger.
+     * This method is not called for each event but more or less each time
+     * the runtime detects that the configuration has changed.
+     * 
+     * @param level the new level of the underlying logger.
+     * @throws UnsupportedOperationException if overriding the level is not
+     *   supported by the underlying logger
+     */
+    default void overrideLevel(Level level) {
+      throw new UnsupportedOperationException("SLF4J do not offer to change the log level dynamically");
+    }
+  }
+  
+  /**
+   * The interface that provides a method handle that can emit
+   * a logging event for a configuration class.
+   * 
+   * @see LoggerConfig#logFacadeFactory()
+   * @see ConfigOption#logFacadeFactory(LogFacadeFactory)
+   */
+  @FunctionalInterface
+  interface LogFacadeFactory {
+    /**
+     * Returns a log facade configured for the configuration class.
+     * 
+     * @param configClass the configuration class.
+     * @return a newly created log facade.
+     */
+    LogFacade logFacade(Class<?> configClass);
     
     /**
      * A strategy represent a Logger factory that may or may not be available.
      * 
-     * @see LogEventFactory#fromStrategies(Strategy...)
+     * @see LogFacadeFactory#fromStrategies(Strategy...)
      */
     enum Strategy {
       /**
        * The SLF4J strategy.
        */
-      SLF4J(Optional.of(LogEventFactory.slf4jFactory()).filter(__ -> isAvailable("org.slf4j.LoggerFactory"))),
+      SLF4J(Optional.of(LogFacadeFactory.slf4jFactory()).filter(__ -> isAvailable("org.slf4j.LoggerFactory"))),
       
       /**
        * The LOG4J strategy.
        */
-      LOG4J(Optional.of(LogEventFactory.log4jFactory()).filter(__ -> isAvailable("org.apache.logging.log4j.LogManager"))),
+      LOG4J(Optional.of(LogFacadeFactory.log4jFactory()).filter(__ -> isAvailable("org.apache.logging.log4j.LogManager"))),
+      
+      /**
+       * The Logback strategy.
+       */
+      LOGBACK(Optional.of(LogFacadeFactory.logbackFactory()).filter(__ -> isAvailable("ch.qos.logback.classic.LoggerContext"))),
       
       /**
        * The System.Logger strategy.
        */
-      SYSTEM_LOGGER(Optional.of(LogEventFactory.systemLoggerFactory()).filter(__ -> isAvailable("java.lang.System.Logger"))),
+      SYSTEM_LOGGER(Optional.of(LogFacadeFactory.systemLoggerFactory()).filter(__ -> isAvailable("java.lang.System.Logger"))),
       
       /**
        * The java.util.logging strategy.
        */
-      JUL(Optional.of(LogEventFactory.julFactory()).filter(__ -> isAvailable("java.util.logging.Logger")))
+      JUL(Optional.of(LogFacadeFactory.julFactory()).filter(__ -> isAvailable("java.util.logging.Logger")))
       ;
       
-      final Optional<LogEventFactory> factory;
+      final Optional<LogFacadeFactory> factory;
       
-      private Strategy(Optional<LogEventFactory> factory) {
+      private Strategy(Optional<LogFacadeFactory> factory) {
         this.factory = factory;
       }
 
@@ -116,16 +148,16 @@ public interface LoggerConfig {
         }
       }
       
-      static final LogEventFactory DEFAULT_FACTORY = fromStrategies(SLF4J, LOG4J, SYSTEM_LOGGER, JUL);
+      static final LogFacadeFactory DEFAULT_FACTORY = fromStrategies(SLF4J, LOG4J, LOGBACK, SYSTEM_LOGGER, JUL);
     }
     
     /**
-     * Return the first available LogEventFactory among {@link Strategy#SLF4J}, {@link Strategy#LOG4J},
+     * Return the first available LogEventFactory among {@link Strategy#SLF4J}, {@link Strategy#LOG4J}, {@link Strategy#LOGBACK},
      * {@link Strategy#SYSTEM_LOGGER} and {@link Strategy#JUL}.
-     * This call is equivalent to {@link LogEventFactory#fromStrategies(Strategy...) fromStrategies(SLF4J, LOG4J, SYSTEM_LOGGER, JUL)}.
+     * This call is equivalent to {@link LogFacadeFactory#fromStrategies(Strategy...) fromStrategies(SLF4J, LOG4J, LOGBACK, SYSTEM_LOGGER, JUL)}.
      * @return the first available LogEventFactory.
      */
-    static LogEventFactory defaultFactory() {
+    static LogFacadeFactory defaultFactory() {
       return Strategy.DEFAULT_FACTORY;  
     }
     
@@ -136,7 +168,7 @@ public interface LoggerConfig {
      * @return the first LogEventFactory available.  
      * @throws IllegalStateException if no LogEventFactory is available. 
      */
-    static LogEventFactory fromStrategies(Strategy... strategies) {
+    static LogFacadeFactory fromStrategies(Strategy... strategies) {
       return Arrays.stream(strategies).flatMap(s -> asStream(s.factory)).findFirst().orElseThrow(() -> new IllegalStateException("no available LogEventFactory"));
     }
     
@@ -148,32 +180,58 @@ public interface LoggerConfig {
      * Returns a LogEventFactory that uses SLF4J to log events.
      * @return a LogEventFactory that uses SLF4J to log events.
      */
-    static LogEventFactory slf4jFactory() {
-      return configClass -> LoggerImpl.SLF4JFactoryImpl.SLF4J_LOGGER.bindTo(org.slf4j.LoggerFactory.getLogger(configClass));
+    static LogFacadeFactory slf4jFactory() {
+      return configClass -> {
+        org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(configClass);
+        return () -> LoggerImpl.SLF4JFactoryImpl.SLF4J_LOGGER.bindTo(logger);
+      };
     }
     
     /**
-     * Returns a LogEventFactory that uses LOG4J to log events.
-     * @return a LogEventFactory that uses LOG4J to log events.
+     * Returns a LogEventFactory that uses Log4J to log events.
+     * @return a LogEventFactory that uses Log4J to log events.
      */
-    static LogEventFactory log4jFactory() {
-      return configClass -> LoggerImpl.Log4JFactoryImpl.LOG4J_LOGGER.bindTo(org.apache.logging.log4j.LogManager.getLogger(configClass));
+    static LogFacadeFactory log4jFactory() {
+      return configClass -> new LoggerImpl.Log4JFactoryImpl(org.apache.logging.log4j.LogManager.getLogger(configClass));
+    }
+    
+    /**
+     * Returns a LogEventFactory that uses Logback to log events.
+     * @return a LogEventFactory that uses Logback to log events.
+     */
+    static LogFacadeFactory logbackFactory() {
+      return configClass -> {
+        ch.qos.logback.classic.LoggerContext context = new ch.qos.logback.classic.LoggerContext();
+        ch.qos.logback.classic.util.ContextInitializer contextInitializer = new ch.qos.logback.classic.util.ContextInitializer(context);
+        try {
+          contextInitializer.configureByResource(contextInitializer.findURLOfDefaultConfigurationFile(true));
+        } catch(RuntimeException e) {
+          throw e;
+        } catch (/*Joran*/Exception e) {  // exception are loaded eagerly by the VM
+          throw new IllegalStateException(e);
+        }
+        ch.qos.logback.classic.Logger logger = context.getLogger(configClass);
+        return new LoggerImpl.LogbackFactoryImpl(logger);
+      };
     }
     
     /**
      * Returns a LogEventFactory that uses the {@link java.lang.System.Logger system logger}.
      * @return a new LogEventFactory that delegate the logging to the {@link java.lang.System.Logger system logger}.
      */
-    static LogEventFactory systemLoggerFactory() {
-      return configClass -> LoggerImpl.SystemLoggerFactoryImpl.SYSTEM_LOGGER.bindTo(System.getLogger(configClass.getName()));
+    static LogFacadeFactory systemLoggerFactory() {
+      return configClass -> {
+        java.lang.System.Logger logger = System.getLogger(configClass.getName());
+        return () -> LoggerImpl.SystemLoggerFactoryImpl.SYSTEM_LOGGER.bindTo(logger);
+      };
     }
     
     /**
      * Returns a LogEventFactory that uses java.util.logging to log events.
      * @return a LogEventFactory that uses java.util.logging to log events.
      */
-    static LogEventFactory julFactory() {
-      return configClass -> LoggerImpl.JULFactoryImpl.JUL_LOGGER.bindTo(java.util.logging.Logger.getLogger(configClass.getName()));
+    static LogFacadeFactory julFactory() {
+      return configClass -> new LoggerImpl.JULFactoryImpl(java.util.logging.Logger.getLogger(configClass.getName()));
     }
   }
   
@@ -187,39 +245,65 @@ public interface LoggerConfig {
      * Update the configuration to enable/disable the loggers.
      * @param enable true to enable the logging.
      * @return this configuration option
+     * 
+     * @see LoggerConfig#enable()
      */
     ConfigOption enable(boolean enable);
     /**
      * Update the configuration level.
+     * 
+     * Note that the creation of the underlying logger is lazy so
+     * if the level of the underlying logger need to be overridden
+     * this operation will be delayed until the underlying logger is created.
+     * 
      * @param level the accepted logging level.
+     * @param override the logging level of the underlying logger.
      * @return this configuration option
      * @throws NullPointerException if the level is null
+     * 
+     * @see LoggerConfig#level()
+     * @see LoggerConfig#levelOverride()
      */
-    ConfigOption level(Level level);
+    ConfigOption level(Level level, boolean override);
     /**
-     * Update the configuration property logEventFactory.
-     * @param factory the print factory to use
+     * Update the configuration logFacadeFactory.
+     * @param factory the new factory to use
      * @return this configuration option
      * @throws NullPointerException if the factory is null
+     * 
+     * @see LoggerConfig#logFacadeFactory()
      */
-    ConfigOption logEventFactory(LogEventFactory factory);
+    ConfigOption logFacadeFactory(LogFacadeFactory factory);
   }
   
   /**
    * Returns if the logging is enable, disable or not set.
-   * @return if the logging is enable, disable or not set.
+   * @return true if the logging is enable, disable or not set.
+   * 
+   * @see ConfigOption#enable(boolean)
    */
   Optional<Boolean> enable();
   /**
    * Returns the logging level if set.
    * @return the logging level if set.
+   * 
+   * @see ConfigOption#level(Level, boolean)
    */
   Optional<Level> level();
   /**
+   * Returns if the logging level override the log level of the underlying logger.
+   * @return true if the logging level override the log level of the underlying logger.
+   * 
+   * @see ConfigOption#level(Level, boolean)
+   */
+  Optional<Boolean> levelOverride();
+  /**
    * Returns the log event factory if set.
    * @return the log event factory if set.
+   * 
+   * @see ConfigOption#logFacadeFactory(LogFacadeFactory)
    */
-  Optional<LogEventFactory> logEventFactory();
+  Optional<LogFacadeFactory> logFacadeFactory();
   
   /**
    * Update the configuration by updating the value and then commit the changes. 

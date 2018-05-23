@@ -1,6 +1,7 @@
-package com.github.forax.beautifullogger.integration.jul;
+package com.github.forax.beautifullogger.integration.systemlogger;
 
 import static com.github.forax.beautifullogger.Logger.Level.DEBUG;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,7 @@ class VerySimpleTests {
   @Test
   void justAVerySimpleTest() {
     LoggerConfig config = LoggerConfig.fromClass(VerySimpleTests.class);
-    config.update(upd -> upd.logFacadeFactory(LogFacadeFactory.julFactory()));
+    config.update(upd -> upd.logFacadeFactory(LogFacadeFactory.systemLoggerFactory()));
     
     for(int i = 0; i < 10; i++) {
       LOGGER.error((int value) -> "message " + value, i);
@@ -26,24 +27,14 @@ class VerySimpleTests {
     }
   }
   
-  private static void updateDefaultsLevel(java.util.logging.Level level) {
-    for (java.util.logging.Handler handler: java.util.logging.Logger.getLogger("").getHandlers()) {
-      handler.setLevel(level);
-    }
-  }
-  
   @Test
   void overrideLevel() {
     class Conf { /* empty */ }
-    
-    updateDefaultsLevel(java.util.logging.Level.FINE);
-    try {
-      LoggerConfig config = LoggerConfig.fromClass(Conf.class);
-      config.update(upd -> upd.logFacadeFactory(LogFacadeFactory.julFactory()).level(DEBUG, true));
-      Logger logger = Logger.getLogger(Conf.class);
-      logger.debug("JUL override ok !", null);
-    } finally {
-      updateDefaultsLevel(java.util.logging.Level.INFO);
-    }
+    LoggerConfig config = LoggerConfig.fromClass(Conf.class);
+    config.update(upd -> upd.logFacadeFactory(LogFacadeFactory.systemLoggerFactory()).level(DEBUG, true));
+    Logger logger = Logger.getLogger(Conf.class);
+    assertThrows(UnsupportedOperationException.class, () -> {
+      logger.debug("this message should not be printed", null);  
+    });
   }
 }

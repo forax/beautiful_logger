@@ -2,7 +2,8 @@ package com.github.forax.beautifullogger;
 
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.ENABLE_CONF;
 import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.LEVEL_CONF;
-import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.LOGEVENTFACTORY_CONF;
+import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.LEVEL_OVERRIDE_CONF;
+import static com.github.forax.beautifullogger.LoggerImpl.LoggerConfigFeature.LOGFACADEFACTORY_CONF;
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.invoke.MethodHandles.exactInvoker;
 import static java.lang.invoke.MethodHandles.filterArguments;
@@ -27,6 +28,7 @@ import java.lang.invoke.SwitchPoint;
 import java.lang.invoke.WrongMethodTypeException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
@@ -49,7 +51,8 @@ import java.util.function.Supplier;
 
 import com.github.forax.beautifullogger.Logger.Level;
 import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
-import com.github.forax.beautifullogger.LoggerConfig.LogEventFactory;
+import com.github.forax.beautifullogger.LoggerConfig.LogFacade;
+import com.github.forax.beautifullogger.LoggerConfig.LogFacadeFactory;
 
 import sun.misc.Unsafe;
 
@@ -107,7 +110,7 @@ class LoggerImpl {
   }
   
   private static class CS extends MutableCallSite {
-    private static final MethodType PRINTING_TYPE = methodType(void.class, String.class, Level.class, Throwable.class);
+    private static final MethodType LOG_METHOD_TYPE = methodType(void.class, String.class, Level.class, Throwable.class);
     private static final MethodHandle FALLBACK, NOP;
     private static final MethodHandle[] CHECK_LEVELS;
     static {
@@ -158,16 +161,17 @@ class LoggerImpl {
       MethodHandle target;
       MethodHandle empty = empty_void(type());
       if (enable) {
-        // get configuration 'printFactory' 
-        LogEventFactory logEventFactory = LOGEVENTFACTORY_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints)
-            .orElseGet(LogEventFactory::defaultFactory);
-        MethodHandle printing = logEventFactory.getPrintMethodHandle(configClass);
-        if (!printing.type().equals(PRINTING_TYPE)) {
-          throw new WrongMethodTypeException("the print method handle should be typed (String, Level, Throwable)V ".concat(printing.toString()));
+        // get configuration facade factory
+        LogFacadeFactory logFacadeFactory = LOGFACADEFACTORY_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints)
+            .orElseGet(LogFacadeFactory::defaultFactory);
+        LogFacade logFacade = logFacadeFactory.logFacade(configClass);
+        MethodHandle logMH = logFacade.getLogMethodHandle();
+        if (!logMH.type().equals(LOG_METHOD_TYPE)) {
+          throw new WrongMethodTypeException("the print method handle should be typed (String, Level, Throwable)V ".concat(logMH.toString()));
         }
         
         // adjust to the number of parameters (+ the message provider)
-        MethodHandle print = dropArguments(printing, 3, nCopies(1 + maxParameters, Object.class));
+        MethodHandle print = dropArguments(logMH, 3, nCopies(1 + maxParameters, Object.class));
         
         // create the message provider call site, we already have the arguments of the first call here,
         // so we can directly call the fallback to avoid an unnecessary round trip 
@@ -175,8 +179,11 @@ class LoggerImpl {
         providerCallSite.fallback(messageProvider, args);
         target = providerCallSite.getTarget();
         
-        // check configuration level
+        // check configuration level, override the underlying logger level if necessary
         Level configLevel = LEVEL_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints).orElse(Level.INFO);
+        if (LEVEL_OVERRIDE_CONF.findValueAndCollectSwitchPoints(configClass, switchPoints).orElse(false)) {
+          logFacade.overrideLevel(configLevel);
+        }
         target = guardWithTest(CHECK_LEVELS[configLevel.ordinal()], target, empty);
         
       } else {
@@ -396,7 +403,8 @@ class LoggerImpl {
   static class LoggerConfigFeature<T> {
     static final LoggerConfigFeature<Boolean> ENABLE_CONF = new LoggerConfigFeature<>(LoggerConfig::enable);
     static final LoggerConfigFeature<Level> LEVEL_CONF = new LoggerConfigFeature<>(LoggerConfig::level);
-    static final LoggerConfigFeature<LogEventFactory> LOGEVENTFACTORY_CONF = new LoggerConfigFeature<>(LoggerConfig::logEventFactory);
+    static final LoggerConfigFeature<Boolean> LEVEL_OVERRIDE_CONF = new LoggerConfigFeature<>(LoggerConfig::levelOverride);
+    static final LoggerConfigFeature<LogFacadeFactory> LOGFACADEFACTORY_CONF = new LoggerConfigFeature<>(LoggerConfig::logFacadeFactory);
     
     private final Function<LoggerConfigImpl, Optional<T>> extractor;
     
@@ -429,12 +437,13 @@ class LoggerImpl {
         return this;
       } 
       @Override
-      public ConfigOption level(Level level) {
+      public ConfigOption level(Level level, boolean override) {
         LoggerConfigImpl.this.level = Objects.requireNonNull(level);
+        LoggerConfigImpl.this.levelOverride = override;
         return this;
       }
       @Override
-      public ConfigOption logEventFactory(LogEventFactory printFactory) {
+      public ConfigOption logFacadeFactory(LogFacadeFactory printFactory) {
         LoggerConfigImpl.this.logEventFactory = Objects.requireNonNull(printFactory);
         return this;
       }
@@ -443,9 +452,10 @@ class LoggerImpl {
     private final Object lock = new Object();
     private SwitchPoint switchPoint;
     
-    volatile Boolean enable; // nullable
-    volatile Level level;    // nullable
-    volatile LogEventFactory logEventFactory;  // nullable
+    volatile Boolean enable;                   // nullable
+    volatile Level level;                      // nullable
+    volatile Boolean levelOverride;            // nullable 
+    volatile LogFacadeFactory logEventFactory;  // nullable
 
     LoggerConfigImpl() {
       synchronized(lock) {
@@ -462,7 +472,11 @@ class LoggerImpl {
       return Optional.ofNullable(level);
     }
     @Override
-    public Optional<LogEventFactory> logEventFactory() {
+    public Optional<Boolean> levelOverride() {
+      return Optional.ofNullable(levelOverride);
+    }
+    @Override
+    public Optional<LogFacadeFactory> logFacadeFactory() {
       return Optional.ofNullable(logEventFactory);
     }
     
@@ -569,8 +583,8 @@ class LoggerImpl {
     }
   }
   
-  static class Log4JFactoryImpl {
-    static final MethodHandle LOG4J_LOGGER;
+  static class Log4JFactoryImpl implements LogFacade {
+    private static final MethodHandle LOG4J_LOGGER;
     static {
       Lookup lookup = MethodHandles.lookup();
       MethodHandle mh, filter;
@@ -589,7 +603,6 @@ class LoggerImpl {
           new int[] { 0, 2, 1, 3});
     }
     
-    @SuppressWarnings("unused")
     private static org.apache.logging.log4j.Level level(Level level) {
       // do not use a switch here, we want this code to be inlined !
       if (level == Level.ERROR) {
@@ -609,22 +622,45 @@ class LoggerImpl {
       }
       throw newIllegalStateException();
     }
+
+    private final org.apache.logging.log4j.Logger logger;
+    
+    Log4JFactoryImpl(org.apache.logging.log4j.Logger logger) {
+      this.logger = logger;
+    }
+
+    @Override
+    public MethodHandle getLogMethodHandle() {
+      return LOG4J_LOGGER.bindTo(logger);
+    }
+    
+    @Override
+    public void overrideLevel(Level level) {
+      String name = logger.getName();
+      try {
+        Class<?> configuratorClass = Class.forName("org.apache.logging.log4j.core.config.Configurator");
+        Method setLevel = configuratorClass.getMethod("setLevel", String.class, org.apache.logging.log4j.Level.class);
+        setLevel.invoke(null, name, level(level));
+      } catch(ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        throw new UnsupportedOperationException("can not override the level of Log4J logger " + name, e);
+      }
+    }
   }
   
   static class SLF4JFactoryImpl {
     static final MethodHandle SLF4J_LOGGER;
-    private static final MethodHandle ERROR, WARNING, INFO, DEBUG, TRACE; 
+    private static final MethodHandle ERROR_MH, WARNING_MH, INFO_MH, DEBUG_MH, TRACE_MH; 
     static {
       Lookup lookup = MethodHandles.lookup();
-      ERROR = mh(lookup, "error");
-      WARNING = mh(lookup, "warn");
-      INFO = mh(lookup, "info");
-      DEBUG = mh(lookup, "debug");
-      TRACE = mh(lookup, "trace");
+      ERROR_MH = mh(lookup, "error");
+      WARNING_MH = mh(lookup, "warn");
+      INFO_MH = mh(lookup, "info");
+      DEBUG_MH = mh(lookup, "debug");
+      TRACE_MH = mh(lookup, "trace");
       
       MethodHandle level;
       try {
-        level = lookup.findStatic(SLF4JFactoryImpl.class, "level",
+        level = lookup.findStatic(SLF4JFactoryImpl.class, "levelMH",
             methodType(MethodHandle.class, org.slf4j.Logger.class, String.class, Level.class));
       } catch (NoSuchMethodException | IllegalAccessException e) {
         throw new AssertionError(e);
@@ -644,29 +680,118 @@ class LoggerImpl {
     }
     
     @SuppressWarnings("unused")
-    private static MethodHandle level(org.slf4j.Logger logger, String message, Level level) {
+    private static MethodHandle levelMH(org.slf4j.Logger logger, String message, Level level) {
       // do not use a switch here, we want this code to be inlined !
       if (level == Level.ERROR) {
-        return ERROR;
+        return ERROR_MH;
       }
       if (level == Level.WARNING) {
-        return WARNING;
+        return WARNING_MH;
       }
       if (level == Level.INFO) {
-        return INFO;
+        return INFO_MH;
       }
       if (level == Level.DEBUG) {
-        return DEBUG;
+        return DEBUG_MH;
       }
       if (level == Level.TRACE) {
-        return TRACE;
+        return TRACE_MH;
       }
       throw newIllegalStateException();
     }
   }
   
-  static class JULFactoryImpl {
-    static final MethodHandle JUL_LOGGER;
+  static class LogbackFactoryImpl implements LogFacade {
+    private static final MethodHandle LOGBACK_LOGGER;
+    private static final MethodHandle ERROR_MH, WARNING_MH, INFO_MH, DEBUG_MH, TRACE_MH; 
+    static {
+      Lookup lookup = MethodHandles.lookup();
+      ERROR_MH = mh(lookup, "error");
+      WARNING_MH = mh(lookup, "warn");
+      INFO_MH = mh(lookup, "info");
+      DEBUG_MH = mh(lookup, "debug");
+      TRACE_MH = mh(lookup, "trace");
+      
+      MethodHandle level;
+      try {
+        level = lookup.findStatic(LogbackFactoryImpl.class, "levelMH",
+            methodType(MethodHandle.class, ch.qos.logback.classic.Logger.class, String.class, Level.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+      
+      MethodHandle invoker = exactInvoker(methodType(void.class, ch.qos.logback.classic.Logger.class, String.class, Throwable.class));
+      MethodHandle mh = dropArguments(invoker, 3, Level.class);
+      LOGBACK_LOGGER = foldArguments(mh, level);
+    }
+    
+    private static MethodHandle mh(Lookup lookup, String name) {
+      try {
+        return lookup.findVirtual(ch.qos.logback.classic.Logger.class, name, methodType(void.class, String.class, Throwable.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+    }
+    
+    @SuppressWarnings("unused")
+    private static MethodHandle levelMH(ch.qos.logback.classic.Logger logger, String message, Level level) {
+      // do not use a switch here, we want this code to be inlined !
+      if (level == Level.ERROR) {
+        return ERROR_MH;
+      }
+      if (level == Level.WARNING) {
+        return WARNING_MH;
+      }
+      if (level == Level.INFO) {
+        return INFO_MH;
+      }
+      if (level == Level.DEBUG) {
+        return DEBUG_MH;
+      }
+      if (level == Level.TRACE) {
+        return TRACE_MH;
+      }
+      throw newIllegalStateException();
+    }
+    
+    private final ch.qos.logback.classic.Logger logger;
+    
+    LogbackFactoryImpl(ch.qos.logback.classic.Logger logger) {
+      this.logger = logger;
+    }
+    
+    @Override
+    public MethodHandle getLogMethodHandle() {
+      return LOGBACK_LOGGER.bindTo(logger);
+    }
+    
+    
+    private static ch.qos.logback.classic.Level level(Level level) {
+      // not used in the fast path, so a switch is OK here !
+      switch(level) {
+      case ERROR:
+        return ch.qos.logback.classic.Level.ERROR;
+      case WARNING:
+        return ch.qos.logback.classic.Level.WARN;
+      case INFO:
+        return ch.qos.logback.classic.Level.INFO;
+      case DEBUG:
+        return ch.qos.logback.classic.Level.DEBUG;
+      case TRACE:
+        return ch.qos.logback.classic.Level.TRACE;
+       default:
+         throw newIllegalStateException();
+      }
+    }
+    
+    @Override
+    public void overrideLevel(Level level) {
+      logger.setLevel(level(level));
+    }
+  }
+  
+  static class JULFactoryImpl implements LogFacade {
+    private static final MethodHandle JUL_LOGGER;
     static {
       Lookup lookup = MethodHandles.lookup();
       MethodHandle mh, filter;
@@ -684,7 +809,6 @@ class LoggerImpl {
           new int[] { 0, 2, 1, 3});
     }
     
-    @SuppressWarnings("unused")
     private static java.util.logging.Level level(Level level) {
       // do not use a switch here, we want this code to be inlined !
       if (level == Level.ERROR) {
@@ -703,6 +827,22 @@ class LoggerImpl {
         return java.util.logging.Level.FINER;
       }
       throw newIllegalStateException();
+    }
+    
+    private final java.util.logging.Logger logger;
+
+    JULFactoryImpl(java.util.logging.Logger logger) {
+      this.logger = logger;
+    }
+
+    @Override
+    public MethodHandle getLogMethodHandle() {
+      return LoggerImpl.JULFactoryImpl.JUL_LOGGER.bindTo(logger);
+    }
+    
+    @Override
+    public void overrideLevel(Level level) {
+      logger.setLevel(level(level));
     }
   }
   
