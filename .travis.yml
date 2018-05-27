@@ -7,8 +7,8 @@ before_install:
   - unset _JAVA_OPTIONS
 
 install:
-  - wget --no-check-certificate https://github.com/forax/pro/releases/download/0.10-17/pro-linux.zip
-  - unzip pro-linux.zip
+  - wget --no-check-certificate https://github.com/forax/pro/releases/download/0.10-17/pro-linux-early-access.zip
+  - unzip pro-linux-early-access.zip
 
 script:
   - ./pro/bin/pro version
