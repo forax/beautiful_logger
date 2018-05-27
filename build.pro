@@ -46,9 +46,9 @@ resolver.
     )
     
 modulefixer.
-  additionalRequires(
-    "org.apache.logging.log4j.core=java.activation/true"
-  )
+    additionalRequires(
+      "org.apache.logging.log4j.core=java.activation/true"
+    )
 
 compiler.
     rawArguments(
@@ -57,8 +57,8 @@ compiler.
     )
 
 docer.
-  quiet(true).
-  link(uri("https://docs.oracle.com/javase/9/docs/api/"))
+    quiet(true).
+    link(uri("https://docs.oracle.com/javase/9/docs/api/"))
 
 packager.
     modules(
