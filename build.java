@@ -44,7 +44,7 @@ class build {
         "ch.qos.logback.core=ch.qos.logback:logback-core:1.3.0-alpha4",
 
         // Google Flogger
-        "com.google.common.flogger=com.google.flogger:flogger:0.1,com.google.flogger:flogger-system-backend:0.1",
+        "com.google.common.flogger=com.google.flogger:flogger:0.2,com.google.flogger:flogger-system-backend:0.2",
         "javax.annotation=com.google.code.findbugs:jsr305:3.0.2"
       );
 
