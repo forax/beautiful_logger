@@ -20,7 +20,7 @@ public class Rewriter {
     ClassReader reader = new ClassReader(code);
     ClassWriter writer = new ClassWriter(reader, 0);
     
-    reader.accept(new ClassVisitor(Opcodes.ASM6, writer) {
+    reader.accept(new ClassVisitor(Opcodes.ASM7, writer) {
       @Override
       public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         int newVersion = name.equals("module-info")? version: Opcodes.V1_8;

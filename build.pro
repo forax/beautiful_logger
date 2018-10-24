@@ -14,7 +14,7 @@ resolver.
   checkForUpdate(true).
   dependencies(
     // ASM
-    "org.objectweb.asm=org.ow2.asm:asm:6.2",
+    "org.objectweb.asm=org.ow2.asm:asm:7.0-beta",
 
     // JUnit
     "org.junit.jupiter.api=org.junit.jupiter:junit-jupiter-api:5.2.0",
@@ -59,7 +59,7 @@ tester.
 
 docer.
   quiet(true).
-  link(uri("https://docs.oracle.com/javase/9/docs/api/"))
+  link(uri("https://docs.oracle.com/en/java/javase/11/docs/api/"))
 
 packager.
   modules(
