@@ -36,13 +36,13 @@ resolver.
     // SLF4J + Logback
     "org.slf4j=org.slf4j:slf4j-api:1.8.0-beta2",
     "java.activation=javax.activation:activation:1.1.1",
-    "java.mail=com.sun.mail:javax.mail:1.6.1",
+    "java.mail=com.sun.mail:javax.mail:1.6.2",
     "ch.qos.logback.classic=ch.qos.logback:logback-classic:1.3.0-alpha4",
     "ch.qos.logback.core=ch.qos.logback:logback-core:1.3.0-alpha4",
 
     // Google Flogger
     "com.google.common.flogger=com.google.flogger:flogger:0.3.1,com.google.flogger:flogger-system-backend:0.3.1",
-    "javax.annotation=com.google.code.findbugs:jsr305:3.0.1"
+    "javax.annotation=com.google.code.findbugs:jsr305:3.0.2"
   )
 
 modulefixer.
