@@ -17,11 +17,11 @@ resolver.
     "org.objectweb.asm=org.ow2.asm:asm:7.0-beta",
 
     // JUnit
-    "org.junit.jupiter.api=org.junit.jupiter:junit-jupiter-api:5.2.0",
-    "org.junit.jupiter.params=org.junit.jupiter:junit-jupiter-params:5.2.0",
-    "org.junit.platform.commons=org.junit.platform:junit-platform-commons:1.2.0",
+    "org.junit.jupiter.api=org.junit.jupiter:junit-jupiter-api:5.3.1",
+    "org.junit.jupiter.params=org.junit.jupiter:junit-jupiter-params:5.3.1",
+    "org.junit.platform.commons=org.junit.platform:junit-platform-commons:1.3.1",
     "org.apiguardian.api=org.apiguardian:apiguardian-api:1.0.0",
-    "org.opentest4j=org.opentest4j:opentest4j:1.1.0",
+    "org.opentest4j=org.opentest4j:opentest4j:1.1.1",
 
     // JMH
     "org.openjdk.jmh=org.openjdk.jmh:jmh-core:1.21",
@@ -30,8 +30,8 @@ resolver.
     "org.openjdk.jmh.generator=org.openjdk.jmh:jmh-generator-annprocess:1.21",
 
     // Log4j2
-    "org.apache.logging.log4j=org.apache.logging.log4j:log4j-api:2.11.0",
-    "org.apache.logging.log4j.core=org.apache.logging.log4j:log4j-core:2.11.0",
+    "org.apache.logging.log4j=org.apache.logging.log4j:log4j-api:2.11.1",
+    "org.apache.logging.log4j.core=org.apache.logging.log4j:log4j-core:2.11.1",
 
     // SLF4J + Logback
     "org.slf4j=org.slf4j:slf4j-api:1.8.0-beta2",
@@ -41,8 +41,8 @@ resolver.
     "ch.qos.logback.core=ch.qos.logback:logback-core:1.3.0-alpha4",
 
     // Google Flogger
-    "com.google.common.flogger=com.google.flogger:flogger:0.2,com.google.flogger:flogger-system-backend:0.2",
-    "javax.annotation=com.google.code.findbugs:jsr305:3.0.2"
+    "com.google.common.flogger=com.google.flogger:flogger:0.3.1,com.google.flogger:flogger-system-backend:0.3.1",
+    "javax.annotation=com.google.code.findbugs:jsr305:3.0.1"
   )
 
 modulefixer.
