@@ -234,7 +234,7 @@ public class LoggerDisabledBenchMark {
   }
   
   @Benchmark
-  public void flogger_disable_lambda() {
+  public void flogger_disable() {
     FLUENT_LOGGER.atFine().log("should not be printed !");
   }
   
