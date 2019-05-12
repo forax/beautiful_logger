@@ -14,7 +14,7 @@ resolver.
   checkForUpdate(true).
   dependencies(
     // ASM
-    "org.objectweb.asm=org.ow2.asm:asm:7.0-beta",
+    "org.objectweb.asm=org.ow2.asm:asm:7.1",
 
     // JUnit
     "org.junit.jupiter.api=org.junit.jupiter:junit-jupiter-api:5.3.1",
@@ -30,18 +30,18 @@ resolver.
     "org.openjdk.jmh.generator=org.openjdk.jmh:jmh-generator-annprocess:1.21",
 
     // Log4j2
-    "org.apache.logging.log4j=org.apache.logging.log4j:log4j-api:2.11.1",
-    "org.apache.logging.log4j.core=org.apache.logging.log4j:log4j-core:2.11.1",
+    "org.apache.logging.log4j=org.apache.logging.log4j:log4j-api:2.11.2",
+    "org.apache.logging.log4j.core=org.apache.logging.log4j:log4j-core:2.11.2",
 
     // SLF4J + Logback
-    "org.slf4j=org.slf4j:slf4j-api:1.8.0-beta2",
+    "org.slf4j=org.slf4j:slf4j-api:1.8.0-beta4",
     "java.activation=javax.activation:activation:1.1.1",
     "java.mail=com.sun.mail:javax.mail:1.6.2",
     "ch.qos.logback.classic=ch.qos.logback:logback-classic:1.3.0-alpha4",
     "ch.qos.logback.core=ch.qos.logback:logback-core:1.3.0-alpha4",
 
     // Google Flogger
-    "com.google.common.flogger=com.google.flogger:flogger:0.3.1,com.google.flogger:flogger-system-backend:0.3.1",
+    "com.google.common.flogger=com.google.flogger:flogger:0.4,com.google.flogger:flogger-system-backend:0.4",
     "javax.annotation=com.google.code.findbugs:jsr305:3.0.2"
   )
 
@@ -55,7 +55,7 @@ compiler.
   )
 
 tester.
-  parallel(false)   // several tests are not threadsafe because they modify loggers conf attached to classes
+  parallel(false)   // several tests are not threadsafe because they modify the loggers conf attached to classes
 
 docer.
   quiet(true).
@@ -63,12 +63,12 @@ docer.
 
 packager.
   modules(
-    "com.github.forax.beautifullogger@0.9.10",
-    "com.github.forax.beautifullogger.tool@0.9.10",
-    "com.github.forax.beautifullogger.perf@0.9.10",
-    "com.github.forax.beautifullogger.integration.log4j@0.9.10",
-    "com.github.forax.beautifullogger.integration.slf4j@0.9.10",
-    "com.github.forax.beautifullogger.integration.jul@0.9.10"
+    "com.github.forax.beautifullogger@0.9.11",
+    "com.github.forax.beautifullogger.tool@0.9.11",
+    "com.github.forax.beautifullogger.perf@0.9.11",
+    "com.github.forax.beautifullogger.integration.log4j@0.9.11",
+    "com.github.forax.beautifullogger.integration.slf4j@0.9.11",
+    "com.github.forax.beautifullogger.integration.jul@0.9.11"
   )
 
 run(resolver, modulefixer, compiler, rewriter, tester, docer, packager)

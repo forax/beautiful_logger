@@ -13,6 +13,7 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASM6;
+import static org.objectweb.asm.Opcodes.ASM7;
 import static org.objectweb.asm.Opcodes.DLOAD;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
@@ -99,7 +100,16 @@ public class LoggerGenerator {
 
   private static void generateOverride(ClassWriter writer, Path loggerClass) throws IOException {
     ClassReader reader = new ClassReader(Files.readAllBytes(loggerClass));
-    reader.accept(new ClassVisitor(ASM6) {
+    reader.accept(new ClassVisitor(ASM7) {
+      @Override
+      public void visitInnerClass(String name, String outerName, String innerName, int access) {
+        // skip inner class
+      }
+      @Override
+      public void visitNestMember(String nestMember) {
+        // skip nest member
+      }
+      
       @Override
       public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         if ((access & ACC_ABSTRACT) == 0) {  // implement abstract method
@@ -107,7 +117,11 @@ public class LoggerGenerator {
         }
         
         MethodVisitor mv = writer.visitMethod(access & (~ACC_ABSTRACT), name, desc, signature, exceptions);
+        // old Hidden annotation, up to jdk 12
         mv.visitAnnotation("Ljava/lang/invoke/LambdaForm$Hidden;", true)
+          .visitEnd();
+        // new Hidden annotation, jdk 13+
+        mv.visitAnnotation("Ljdk/internal/vm/annotation/Hidden;", true)
           .visitEnd();
         mv.visitAnnotation("Ljdk/internal/vm/annotation/ForceInline;", true)
           .visitEnd();
