@@ -9,5 +9,5 @@ module com.github.forax.beautifullogger.perf {
   requires java.logging;
   requires com.google.common.flogger;
   
-  exports com.github.forax.beautifullogger.perf.generated;  // export JMH generated package 
+  exports com.github.forax.beautifullogger.perf.jmh_generated;  // export JMH generated package
 }
