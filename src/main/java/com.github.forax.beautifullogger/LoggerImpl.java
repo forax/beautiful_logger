@@ -577,8 +577,9 @@ class LoggerImpl {
 
     Lookup lookup = MethodHandles.lookup();
     MethodHandle defineHiddenClass;
+    MethodType methodType = methodType(Lookup.class, byte[].class, boolean.class, classOptionArray);
     try {
-      defineHiddenClass = lookup.findVirtual(Lookup.class, "defineHiddenClass", methodType(Lookup.class, byte[].class, boolean.class, classOptionArray));
+      defineHiddenClass = lookup.findVirtual(Lookup.class, "defineHiddenClass", methodType);
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new AssertionError(e);
     }
