@@ -544,7 +544,7 @@ class LoggerImpl {
   private static MethodHandle defineLoggerFactoryUsingUnsafe(MethodHandle defineAnonymousClass) {
     Class<?> stubClass;
     try {
-      stubClass = (Class<?>) defineAnonymousClass.invoke(UNSAFE, null, loggerFactoryBytecode(), null);
+      stubClass = (Class<?>) defineAnonymousClass.invoke(UNSAFE, Logger.class, loggerFactoryBytecode(), null);
     } catch (Throwable e) {
       throw new AssertionError(e);
     }
