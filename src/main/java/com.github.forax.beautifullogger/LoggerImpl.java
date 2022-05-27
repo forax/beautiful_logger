@@ -533,7 +533,7 @@ class LoggerImpl {
   private static MethodHandle defineAnonymousClass(Class<?> unsafeClass) {
     Lookup lookup = MethodHandles.lookup();
     try {
-      return lookup.findStatic(unsafeClass, "defineAnonymousClass", methodType(Class.class, Class.class, byte[].class, Object[].class));
+      return lookup.findVirtual(unsafeClass, "defineAnonymousClass", methodType(Class.class, Class.class, byte[].class, Object[].class));
     } catch (NoSuchMethodException e) {
       return null;  // not found
     }catch (IllegalAccessException e) {
