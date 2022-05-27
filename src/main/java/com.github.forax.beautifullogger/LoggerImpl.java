@@ -55,8 +55,6 @@ import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
 import com.github.forax.beautifullogger.LoggerConfig.LogFacade;
 import com.github.forax.beautifullogger.LoggerConfig.LogFacadeFactory;
 
-import sun.misc.Unsafe;
-
 class LoggerImpl {
   static final boolean IS_JAVA_8;
   static {
