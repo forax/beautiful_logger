@@ -1,4 +1,4 @@
-package com.github.forax.beautifullogger.tool.tool;
+package com.github.forax.beautifullogger.tool;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.objectweb.asm.ClassReader.SKIP_CODE;

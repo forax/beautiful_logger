@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import com.github.forax.beautifullogger.Logger;
 import com.github.forax.beautifullogger.LoggerConfig;
 import com.github.forax.beautifullogger.LoggerConfig.LogFacadeFactory;
+import org.junit.jupiter.api.condition.DisabledOnJre;
+import org.junit.jupiter.api.condition.JRE;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -33,6 +35,7 @@ public class VerySimpleTests {
   }
   
   @Test
+  @DisabledOnJre(JRE.JAVA_8)
   public void overrideLevel() {
     class Conf { /* empty */ }
     LoggerConfig config = LoggerConfig.fromClass(Conf.class);

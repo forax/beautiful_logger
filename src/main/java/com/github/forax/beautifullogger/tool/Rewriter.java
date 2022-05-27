@@ -1,4 +1,4 @@
-package com.github.forax.beautifullogger.tool.tool;
+package com.github.forax.beautifullogger.tool;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

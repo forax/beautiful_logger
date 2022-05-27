@@ -1,16 +1,17 @@
 package com.github.forax.beautifullogger;
 
 import static com.github.forax.beautifullogger.LoggerConfigSupport.printer;
-import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -26,9 +27,17 @@ import com.github.forax.beautifullogger.Logger.Level;
 @SuppressWarnings("static-method")
 public class LoggerLevelTests {
 
+  private static <K, V> Map.Entry<K, V> entry(K key, V value) {
+    return new SimpleImmutableEntry<>(key, value);
+  }
+
+  private static <T> List<T> listOf(T... values) {
+    return Collections.unmodifiableList(Arrays.asList(values));
+  }
+
   @SuppressWarnings("unused")
   private static Stream<Arguments> logNullThrowableAndLevelPairSource() {
-    List<Entry<Consumer<Logger>, Level>> list = List.of(
+    List<Entry<Consumer<Logger>, Level>> list = listOf(
         entry(l -> l.debug("hello", null),   Level.DEBUG),
         entry(l -> l.error("hello", null),   Level.ERROR),
         entry(l -> l.info("hello", null),    Level.INFO),
@@ -56,7 +65,7 @@ public class LoggerLevelTests {
   
   @SuppressWarnings("unused")
   private static Stream<Arguments> logThrowableAndLevelPairSource() {
-    List<Entry<BiConsumer<Logger, Throwable>, Level>> list = List.of(
+    List<Entry<BiConsumer<Logger, Throwable>, Level>> list = listOf(
         entry((l, t) -> l.debug("exception", t),   Level.DEBUG),
         entry((l, t) -> l.error("exception", t),   Level.ERROR),
         entry((l, t) -> l.info("exception", t),    Level.INFO),
@@ -84,7 +93,7 @@ public class LoggerLevelTests {
   
   @SuppressWarnings("unused")
   private static Stream<Arguments> logSupplierAndLevelPairSource() {
-    List<Entry<BiConsumer<Logger, Supplier<String>>, Level>> list = List.of(
+    List<Entry<BiConsumer<Logger, Supplier<String>>, Level>> list = listOf(
         entry(Logger::debug,   Level.DEBUG),
         entry(Logger::error,   Level.ERROR),
         entry(Logger::info,    Level.INFO),
@@ -110,7 +119,7 @@ public class LoggerLevelTests {
   }
   
   static Stream<Arguments> logIntFunctionAndLevelPairSource() {
-    List<Entry<Consumer<Logger>, Level>> list = List.of(
+    List<Entry<Consumer<Logger>, Level>> list = listOf(
         entry(l -> l.debug((int v) -> "" + v, 1),   Level.DEBUG),
         entry(l -> l.error((int v) -> "" + v, 1),   Level.ERROR),
         entry(l -> l.info((int v) -> "" + v, 1),    Level.INFO),
@@ -137,7 +146,7 @@ public class LoggerLevelTests {
 
 
   static Stream<Arguments> logLongFunctionAndLevelPairSource() {
-    List<Entry<Consumer<Logger>, Level>> list = List.of(
+    List<Entry<Consumer<Logger>, Level>> list = listOf(
         entry(l -> l.debug((long v) -> "" + v, 2L),   Level.DEBUG),
         entry(l -> l.error((long v) -> "" + v, 2L),   Level.ERROR),
         entry(l -> l.info((long v) -> "" + v, 2L),    Level.INFO),
@@ -164,7 +173,7 @@ public class LoggerLevelTests {
 
   @SuppressWarnings("unused")
   private static Stream<Arguments> logDoubleFunctionAndLevelPairSource() {
-    List<Entry<Consumer<Logger>, Level>> list = List.of(
+    List<Entry<Consumer<Logger>, Level>> list = listOf(
         entry(l -> l.debug(Double::toString, 3.0),   Level.DEBUG),
         entry(l -> l.error(Double::toString, 3.0),   Level.ERROR),
         entry(l -> l.info(Double::toString, 3.0),    Level.INFO),
@@ -191,7 +200,7 @@ public class LoggerLevelTests {
   
   @SuppressWarnings("unused")
   private static Stream<Arguments> logFunctionAndLevelPairSource() {
-    List<Entry<Consumer<Logger>, Level>> list = List.of(
+    List<Entry<Consumer<Logger>, Level>> list = listOf(
         entry(l -> l.debug(x -> x, "bar"),   Level.DEBUG),
         entry(l -> l.error(x -> x, "bar"),   Level.ERROR),
         entry(l -> l.info(x -> x, "bar"),    Level.INFO),
@@ -218,7 +227,7 @@ public class LoggerLevelTests {
   
   @SuppressWarnings("unused")
   private static Stream<Arguments> logBiFunctionAndLevelPairSource() {
-    List<Entry<Consumer<Logger>, Level>> list = List.of(
+    List<Entry<Consumer<Logger>, Level>> list = listOf(
         entry(l -> l.debug((a, b) -> a + b, "foo", "bar"),   Level.DEBUG),
         entry(l -> l.error((a, b) -> a + b, "foo", "bar"),   Level.ERROR),
         entry(l -> l.info((a, b) -> a + b, "foo", "bar"),    Level.INFO),

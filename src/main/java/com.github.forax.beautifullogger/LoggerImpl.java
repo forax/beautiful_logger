@@ -18,7 +18,6 @@ import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 import static java.util.Collections.nCopies;
 
-import java.lang.StackWalker.Option;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
@@ -49,6 +48,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.LongFunction;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import com.github.forax.beautifullogger.Logger.Level;
 import com.github.forax.beautifullogger.LoggerConfig.ConfigOption;
@@ -56,43 +56,6 @@ import com.github.forax.beautifullogger.LoggerConfig.LogFacade;
 import com.github.forax.beautifullogger.LoggerConfig.LogFacadeFactory;
 
 class LoggerImpl {
-  static final boolean IS_JAVA_8;
-  static {
-    boolean isJava8;
-    try {
-      Class.forName("java.lang.StackWalker");
-      isJava8 = false;
-    } catch (@SuppressWarnings("unused") ClassNotFoundException e) {
-      isJava8 = true;
-    }
-    IS_JAVA_8 = isJava8;
-  }
-
-  static class StackWalkerHolder {
-    static final StackWalker STACK_WALKER = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
-  }
-
-  static class GetCallerHolder {
-    private static final Supplier<?> GET_CALLER_CLASS;
-    static {
-      String s = "yv66vgAAADQAIAcAAgEAM2NvbS9naXRodWIvZm9yYXgvYmVhdXRpZnVsbG9nZ2VyL1JlZmxlY3Rpb25TdXBwbGllcgcABAEAEGphdmEvbGFuZy9PYmplY3QHAAYBABtqYXZhL3V0aWwvZnVuY3Rpb24vU3VwcGxpZXIBAAY8aW5pdD4BAAMoKVYBAARDb2RlCgADAAsMAAcACAEAD0xpbmVOdW1iZXJUYWJsZQEAEkxvY2FsVmFyaWFibGVUYWJsZQEABHRoaXMBADVMY29tL2dpdGh1Yi9mb3JheC9iZWF1dGlmdWxsb2dnZXIvUmVmbGVjdGlvblN1cHBsaWVyOwEAA2dldAEAEygpTGphdmEvbGFuZy9DbGFzczsBAAlTaWduYXR1cmUBABYoKUxqYXZhL2xhbmcvQ2xhc3M8Kj47CgAVABcHABYBABZzdW4vcmVmbGVjdC9SZWZsZWN0aW9uDAAYABkBAA5nZXRDYWxsZXJDbGFzcwEAFChJKUxqYXZhL2xhbmcvQ2xhc3M7AQAUKClMamF2YS9sYW5nL09iamVjdDsKAAEAHAwAEAARAQAKU291cmNlRmlsZQEAF1JlZmxlY3Rpb25TdXBwbGllci5qYXZhAQBFTGphdmEvbGFuZy9PYmplY3Q7TGphdmEvdXRpbC9mdW5jdGlvbi9TdXBwbGllcjxMamF2YS9sYW5nL0NsYXNzPCo+Oz47ACEAAQADAAEABQAAAAMAAQAHAAgAAQAJAAAALwABAAEAAAAFKrcACrEAAAACAAwAAAAGAAEAAAAHAA0AAAAMAAEAAAAFAA4ADwAAAAEAEAARAAIAEgAAAAIAEwAJAAAALwABAAEAAAAFCLgAFLAAAAACAAwAAAAGAAEAAAAKAA0AAAAMAAEAAAAFAA4ADwAAEEEAEAAaAAEACQAAACUAAQABAAAABSq2ABuwAAAAAgAMAAAABgABAAAAAQANAAAAAgAAAAIAEgAAAAIAHwAdAAAAAgAe";
-      Supplier<?> supplier;
-      //FIXME
-      //try {
-        //Class<?> reflectionSupplier = UNSAFE.defineAnonymousClass(LoggerImpl.class, Base64.getDecoder().decode(s), null);
-        //supplier = (Supplier<?>) reflectionSupplier.getConstructor().newInstance();
-      //} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      //  throw new AssertionError(e);
-      //}
-      supplier = () -> { throw new UnsupportedOperationException("not supported"); };
-      GET_CALLER_CLASS = supplier;
-    }
-
-    static Class<?> getCallerClass() {
-      return (Class<?>) GET_CALLER_CLASS.get();
-    }
-  }
-
   private static class None {
     None() { /* singleton */ }
     @Override public String toString() { return "NONE"; }
@@ -144,10 +107,10 @@ class LoggerImpl {
     }
     
     private static MethodHandle empty_void(MethodType methodType) {
-      if (IS_JAVA_8) {
-        return MethodHandles.dropArguments(NOP, 0, methodType.parameterList());  
-      }
-      return MethodHandles.empty(methodType);
+      return MethodHandles.dropArguments(NOP, 0, methodType.parameterList());
+
+      // not available in Java 8
+      //return MethodHandles.empty(methodType);
     }
     
     @SuppressWarnings("unused")
@@ -377,11 +340,43 @@ class LoggerImpl {
     int index = name.lastIndexOf('.');
     return index == -1? "": name.substring(0, index);
   }
-  
+
+  static class ModuleNameHolder {
+    static final MethodHandle GET_MODULE_NAME;
+    static {
+      MethodHandle getModuleName;
+      try {
+        Class<?> moduleClass = Class.forName("java.lang.Module");
+
+        Lookup lookup = MethodHandles.lookup();
+        MethodHandle getModule, getName;
+        try {
+          getModule = lookup.findVirtual(Class.class, "getModule", methodType(moduleClass));
+          getName = lookup.findVirtual(moduleClass, "getName", methodType(String.class));
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new AssertionError(e);
+        }
+        getModuleName = MethodHandles.filterReturnValue(getModule, getName);
+
+      } catch (ClassNotFoundException e) {
+        getModuleName = null;
+      }
+      GET_MODULE_NAME = getModuleName;
+    }
+  }
+
   enum LoggerConfigKind {
     CLASS(Class::getName),
-    PACKAGE(type -> IS_JAVA_8? packageName(type): type.getPackageName()),
-    MODULE(type -> IS_JAVA_8? null: type.getModule().getName());
+    PACKAGE(type -> packageName(type)),
+    MODULE(type -> {
+      try {
+        return ModuleNameHolder.GET_MODULE_NAME == null?
+            null:
+            (String) ModuleNameHolder.GET_MODULE_NAME.invokeExact(type);
+      } catch (Throwable e) {
+        throw new AssertionError(e);
+      }
+    });
     
     private final Function<Class<?>, String> nameExtractor;
     
@@ -509,7 +504,7 @@ class LoggerImpl {
   static {
     Object unsafe;
     try {
-      // jdk.unsupported module can b not available
+      // jdk.unsupported module may be not available
       Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
 
       try {
@@ -609,18 +604,72 @@ class LoggerImpl {
     LOGGER_FACTORY = loggerFactory;
   }
 
-  /*
-  static Class<?> loggerClass(Class<?> hostClass, Object[] patches) {
-    return UNSAFE.defineAnonymousClass(hostClass, LOGGER_BYTECODE, patches);
+  static MethodHandle findGetCallerClassUsingStackWalker() {
+    Class<?> stackWalkerClass;
+    Class<?> stackWalkerOptionClass;
+    try {
+      stackWalkerClass = Class.forName("java.lang.StackWalker");
+      stackWalkerOptionClass = Class.forName("java.lang.StackWalker$Option");
+    } catch (ClassNotFoundException e) {
+      return null;
+    }
+    Object retainClassReference;
+    try {
+      retainClassReference = stackWalkerOptionClass.getField("RETAIN_CLASS_REFERENCE").get(null);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new AssertionError(e);
+    }
+    Lookup lookup = MethodHandles.lookup();
+    MethodHandle getInstance;
+    try {
+      getInstance = lookup.findStatic(stackWalkerClass, "getInstance", methodType(stackWalkerClass, stackWalkerOptionClass));
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      throw new AssertionError(e);
+    }
+    Object stackWalker;
+    try {
+      stackWalker = getInstance.invoke(retainClassReference);
+    } catch (Throwable e) {
+      throw new AssertionError(e);
+    }
+    try {
+      return lookup.findVirtual(stackWalkerClass, "getCallerClass", methodType(Class.class))
+          .bindTo(stackWalker);
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      throw new AssertionError(e);
+    }
   }
 
-  static MethodHandle createFactory(Lookup lookup, Class<?> loggerClass) {
+  static Supplier<?> findGetCallerClassUsingAnonymousClass() {
+    String s = "yv66vgAAADQAIAcAAgEAM2NvbS9naXRodWIvZm9yYXgvYmVhdXRpZnVsbG9nZ2VyL1JlZmxlY3Rpb25TdXBwbGllcgcABAEAEGphdmEvbGFuZy9PYmplY3QHAAYBABtqYXZhL3V0aWwvZnVuY3Rpb24vU3VwcGxpZXIBAAY8aW5pdD4BAAMoKVYBAARDb2RlCgADAAsMAAcACAEAD0xpbmVOdW1iZXJUYWJsZQEAEkxvY2FsVmFyaWFibGVUYWJsZQEABHRoaXMBADVMY29tL2dpdGh1Yi9mb3JheC9iZWF1dGlmdWxsb2dnZXIvUmVmbGVjdGlvblN1cHBsaWVyOwEAA2dldAEAEygpTGphdmEvbGFuZy9DbGFzczsBAAlTaWduYXR1cmUBABYoKUxqYXZhL2xhbmcvQ2xhc3M8Kj47CgAVABcHABYBABZzdW4vcmVmbGVjdC9SZWZsZWN0aW9uDAAYABkBAA5nZXRDYWxsZXJDbGFzcwEAFChJKUxqYXZhL2xhbmcvQ2xhc3M7AQAUKClMamF2YS9sYW5nL09iamVjdDsKAAEAHAwAEAARAQAKU291cmNlRmlsZQEAF1JlZmxlY3Rpb25TdXBwbGllci5qYXZhAQBFTGphdmEvbGFuZy9PYmplY3Q7TGphdmEvdXRpbC9mdW5jdGlvbi9TdXBwbGllcjxMamF2YS9sYW5nL0NsYXNzPCo+Oz47ACEAAQADAAEABQAAAAMAAQAHAAgAAQAJAAAALwABAAEAAAAFKrcACrEAAAACAAwAAAAGAAEAAAAHAA0AAAAMAAEAAAAFAA4ADwAAAAEAEAARAAIAEgAAAAIAEwAJAAAALwABAAEAAAAFCLgAFLAAAAACAAwAAAAGAAEAAAAKAA0AAAAMAAEAAAAFAA4ADwAAEEEAEAAaAAEACQAAACUAAQABAAAABSq2ABuwAAAAAgAMAAAABgABAAAAAQANAAAAAgAAAAIAEgAAAAIAHwAdAAAAAgAe";
+    byte[] bytecode = Base64.getDecoder().decode(s);
+    Supplier<?> supplier;
+
+    MethodHandle defineAnonymousClass = defineAnonymousClass(UNSAFE.getClass());
+    Class<?> reflectionSupplier;
     try {
-      return lookup.findStatic(loggerClass, "create", methodType(Logger.class, MethodHandle.class));
-    } catch (NoSuchMethodException | IllegalAccessException e) {
-      throw new IllegalStateException(e);
+      reflectionSupplier = (Class<?>) defineAnonymousClass.invoke(UNSAFE, LoggerImpl.class, bytecode, null);
+    } catch (Throwable e) {
+      throw new AssertionError(e);
     }
-  }*/
+    try {
+      return (Supplier<?>) reflectionSupplier.getConstructor().newInstance();
+    } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+      throw new AssertionError(e);
+    }
+  }
+
+  static final MethodHandle GET_CALLER_CLASS_MH;
+  static final Supplier<?> GET_CALLER_CLASS_SUPPLIER;
+  static {
+    Supplier<?> getCallerClassSupplier = null;
+    MethodHandle getCallerClassMH = findGetCallerClassUsingStackWalker();
+    if (getCallerClassMH == null) {
+      getCallerClassSupplier = findGetCallerClassUsingAnonymousClass();
+    }
+    GET_CALLER_CLASS_MH = getCallerClassMH;
+    GET_CALLER_CLASS_SUPPLIER = getCallerClassSupplier;
+  }
 
   static Logger createLogger(MethodHandle mh) {
     try {
@@ -629,43 +678,78 @@ class LoggerImpl {
       throw rethrow(e);
     }
   }
-  
+
+  static <T> Stream<T> asStream(Optional<T> optional) {
+    return optional.isPresent()? Stream.of(optional.get()): Stream.empty();
+  }
+
   static class SystemLoggerFactoryImpl {
     static final MethodHandle SYSTEM_LOGGER;
+    private static final MethodHandle GET_SYSTEM_LOGGER;
+    private static final Object ERROR, WARNING, INFO, DEBUG, TRACE;
     static {
       Lookup lookup = MethodHandles.lookup();
+      Class<?> systemLoggerClass, systemLoggerLevelClass;
       MethodHandle mh, filter;
       try {
-        mh = lookup.findVirtual(System.Logger.class, "log",
-            methodType(void.class, System.Logger.Level.class, String.class, Throwable.class));
+        systemLoggerClass = Class.forName("java.lang.System$Logger");
+        systemLoggerLevelClass = Class.forName("java.lang.System$Logger$Level");
+        mh = lookup.findVirtual(systemLoggerClass, "log",
+            methodType(void.class, systemLoggerLevelClass, String.class, Throwable.class));
         filter = lookup.findStatic(SystemLoggerFactoryImpl.class, "level",
-            methodType(System.Logger.Level.class, Level.class));
-      } catch (NoSuchMethodException | IllegalAccessException e) {
+            methodType(Object.class, Level.class))
+            .asType(methodType(systemLoggerLevelClass, Level.class));
+      } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
         throw new AssertionError(e);
       }
       mh = filterArguments(mh, 1, filter);
       SYSTEM_LOGGER = permuteArguments(mh,
-          methodType(void.class, System.Logger.class, String.class, Level.class, Throwable.class),
+          methodType(void.class, systemLoggerClass, String.class, Level.class, Throwable.class),
           0, 2, 1, 3);
+
+      try {
+        GET_SYSTEM_LOGGER = lookup.findStatic(System.class, "getLogger", methodType(systemLoggerClass, String.class))
+            .asType(methodType(Object.class, String.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+
+      try {
+        ERROR = systemLoggerLevelClass.getField("ERROR").get(null);
+        WARNING = systemLoggerLevelClass.getField("WARNING").get(null);
+        INFO = systemLoggerLevelClass.getField("INFO").get(null);
+        DEBUG = systemLoggerLevelClass.getField("DEBUG").get(null);
+        TRACE = systemLoggerLevelClass.getField("TRACE").get(null);
+      } catch (NoSuchFieldException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
     }
-    
+
+    static Object getSystemLogger(String name) {
+      try {
+        return GET_SYSTEM_LOGGER.invokeExact(name);
+      } catch (Throwable e) {
+        throw new AssertionError(e);
+      }
+    }
+
     @SuppressWarnings("unused")
-    private static System.Logger.Level level(Level level) {
+    private static Object level(Level level) {
       // do not use a switch here, we want this code to be inlined !
       if (level == Level.ERROR) {
-        return System.Logger.Level.ERROR;
+        return ERROR;
       }
       if (level == Level.WARNING) {
-        return System.Logger.Level.WARNING;
+        return WARNING;
       }
       if (level == Level.INFO) {
-        return System.Logger.Level.INFO;
+        return INFO;
       }
       if (level == Level.DEBUG) {
-        return System.Logger.Level.DEBUG;
+        return DEBUG;
       }
       if (level == Level.TRACE) {
-        return System.Logger.Level.TRACE;
+        return TRACE;
       }
       throw newIllegalStateException();
     }

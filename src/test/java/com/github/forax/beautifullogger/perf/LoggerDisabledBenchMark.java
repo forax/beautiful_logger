@@ -100,10 +100,15 @@ public class LoggerDisabledBenchMark {
     
     
     @SuppressWarnings("unused")
-    private static boolean isWarning(Level l) {
+    static boolean isWarning(Level l) {
       return l == Level.WARNING;
     }
-    
+
+    @SuppressWarnings("unused")
+    static void empty(Level level, String message) {
+      // do nothing
+    }
+
     public static MethodHandle getLoggingMethodHandle(@SuppressWarnings("unused") Class<?> configClass) {
       Lookup lookup = lookup();
       MethodHandle mh;
@@ -121,14 +126,18 @@ public class LoggerDisabledBenchMark {
       } catch (NoSuchMethodException | IllegalAccessException e) {
         throw new AssertionError(e);
       }
-      MethodHandle empty = MethodHandles.empty(methodType(void.class, Level.class, String.class));
+      MethodHandle empty;
+      try {
+        empty = lookup.findStatic(LambdaLogger.class, "empty", methodType(void.class, Level.class, String.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
       return MethodHandles.guardWithTest(test, mh, empty);
     }
   }
 
-  //FIXME
-  //private static final org.apache.logging.log4j.Logger LOG4J2_LOGGER =
-  //    org.apache.logging.log4j.LogManager.getLogger(LoggerDisabledBenchMark.class);
+  private static final org.apache.logging.log4j.Logger LOG4J2_LOGGER =
+      org.apache.logging.log4j.LogManager.getLogger(LoggerDisabledBenchMark.class);
   private static final org.slf4j.Logger LOGBACK_LOGGER =
       org.slf4j.LoggerFactory.getLogger(LoggerDisabledLoopBenchMark.class);
   private static final java.util.logging.Logger JUL_LOGGER =

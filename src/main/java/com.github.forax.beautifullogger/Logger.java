@@ -1,7 +1,6 @@
 package com.github.forax.beautifullogger;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -323,10 +322,17 @@ public interface Logger {
    * @see LoggerConfig#fromClass(Class)
    */
   public static Logger getLogger() {
-    Class<?> declaringClass = LoggerImpl.IS_JAVA_8?
-        LoggerImpl.GetCallerHolder.getCallerClass():
-        LoggerImpl.StackWalkerHolder.STACK_WALKER.getCallerClass();
-    return getLogger(declaringClass, LoggerImpl.EMPTY_CONSUMER);
+    Class<?> callerClass;
+    if (LoggerImpl.GET_CALLER_CLASS_MH != null) {
+      try {
+        callerClass = (Class<?>) LoggerImpl.GET_CALLER_CLASS_MH.invokeExact();
+      } catch (Throwable e) {
+        throw new AssertionError(e);
+      }
+    } else {
+      callerClass = (Class<?>) LoggerImpl.GET_CALLER_CLASS_SUPPLIER.get();
+    }
+    return getLogger(callerClass, LoggerImpl.EMPTY_CONSUMER);
   }
 
   /**

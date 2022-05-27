@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
-import com.github.forax.beautifullogger.Logger;
 import com.github.forax.beautifullogger.LoggerConfig;
 import com.github.forax.beautifullogger.Logger.Level;
 import com.github.forax.beautifullogger.LoggerConfigSupport.Printer;
@@ -34,7 +33,7 @@ public class LoggerConfigurationTests {
   
   @Test
   public void loggerDisableAfterCreationTime() {
-    var confClass = new Object() { }.getClass();
+    Class<?> confClass = new Object() { }.getClass();
     Logger logger = Logger.getLogger(
         confClass,
         upd -> upd.logFacadeFactory(printer((message, loggerLevel, context) -> {

@@ -170,11 +170,7 @@ public interface LoggerConfig {
      * @throws IllegalStateException if no LogEventFactory is available. 
      */
     static LogFacadeFactory fromStrategies(Strategy... strategies) {
-      return Arrays.stream(strategies).flatMap(s -> asStream(s.factory)).findFirst().orElseThrow(() -> new IllegalStateException("no available LogEventFactory"));
-    }
-    
-    private static <T> Stream<T> asStream(Optional<T> optional) {
-      return optional.isPresent()? Stream.of(optional.get()): Stream.empty();
+      return Arrays.stream(strategies).flatMap(s -> LoggerImpl.asStream(s.factory)).findFirst().orElseThrow(() -> new IllegalStateException("no available LogEventFactory"));
     }
     
     /**
@@ -226,7 +222,7 @@ public interface LoggerConfig {
      */
     static LogFacadeFactory systemLoggerFactory() {
       return configClass -> {
-        java.lang.System.Logger logger = System.getLogger(configClass.getName());
+        Object logger = LoggerImpl.SystemLoggerFactoryImpl.getSystemLogger(configClass.getName());
         return () -> LoggerImpl.SystemLoggerFactoryImpl.SYSTEM_LOGGER.bindTo(logger);
       };
     }
