@@ -22,11 +22,11 @@ import java.lang.StackWalker.Option;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
-import java.lang.invoke.MethodHandles.Lookup.ClassOption;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
 import java.lang.invoke.SwitchPoint;
 import java.lang.invoke.WrongMethodTypeException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -558,11 +558,35 @@ class LoggerImpl {
   }
 
   private static MethodHandle defineLoggerFactoryUsingHiddenClass() {
+    Class<?> classOption;
+    try {
+      classOption = Class.forName("java.lang.invoke.MethodHandles$Lookup$ClassOption");
+    } catch (ClassNotFoundException e) {
+      throw new AssertionError(e);
+    }
+
+    Class<?> classOptionArray = Array.newInstance(classOption, 0).getClass();
+    Object nestmate;
+    Object strong;
+    try {
+      nestmate = classOption.getField("NESTMATE").get(null);
+      strong = classOption.getField("STRONG").get(null);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new AssertionError(e);
+    }
+
     Lookup lookup = MethodHandles.lookup();
+    MethodHandle defineHiddenClass;
+    try {
+      defineHiddenClass = lookup.findVirtual(Lookup.class, "defineHiddenClass", methodType(Lookup.class, byte[].class, boolean.class, classOptionArray));
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      throw new AssertionError(e);
+    }
+
     Lookup loggerClassLookup;
     try {
-      loggerClassLookup = lookup.defineHiddenClass(loggerFactoryBytecode(), true, ClassOption.NESTMATE, ClassOption.STRONG);
-    } catch (IllegalAccessException | IllegalStateException e) {
+      loggerClassLookup = (Lookup) defineHiddenClass.invoke(lookup, loggerFactoryBytecode(), true, nestmate, strong);
+    } catch (Throwable e) {
       throw new AssertionError(e);
     }
     try {
@@ -831,14 +855,20 @@ class LoggerImpl {
     
     private static ch.qos.logback.classic.Level level(Level level) {
       // not used in the fast path, so a switch is OK here !
-      return switch (level) {
-        case ERROR -> ch.qos.logback.classic.Level.ERROR;
-        case WARNING -> ch.qos.logback.classic.Level.WARN;
-        case INFO -> ch.qos.logback.classic.Level.INFO;
-        case DEBUG -> ch.qos.logback.classic.Level.DEBUG;
-        case TRACE -> ch.qos.logback.classic.Level.TRACE;
-        default -> throw newIllegalStateException();
-      };
+      switch (level) {
+        case ERROR:
+          return ch.qos.logback.classic.Level.ERROR;
+        case WARNING:
+          return ch.qos.logback.classic.Level.WARN;
+        case INFO:
+          return ch.qos.logback.classic.Level.INFO;
+        case DEBUG:
+          return ch.qos.logback.classic.Level.DEBUG;
+        case TRACE:
+          return ch.qos.logback.classic.Level.TRACE;
+        default:
+          throw newIllegalStateException();
+      }
     }
     
     @Override
