@@ -1,4 +1,4 @@
-# beautiful_logger [![](https://api.travis-ci.org/forax/beautiful_logger.svg?branch=master)](https://travis-ci.org/forax/beautiful_logger)
+# beautiful_logger [![.github/workflows/main.yml](https://github.com/forax/beautiful_logger/actions/workflows/main.yml/badge.svg)](https://github.com/forax/beautiful_logger/actions/workflows/main.yml)
 Yet another logger API in Java with beautiful features
 
 beautiful_logger is a mostly-zero-overhead wrapper on top of the existing logging implementations with a familiar API (info, error, etc)
