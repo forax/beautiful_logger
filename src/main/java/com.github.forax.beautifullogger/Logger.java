@@ -330,7 +330,7 @@ public interface Logger {
         throw new AssertionError(e);
       }
     } else {
-      callerClass = (Class<?>) LoggerImpl.GET_CALLER_CLASS_SUPPLIER.get();
+      callerClass = LoggerImpl.getCallerClassNoStackWalker();
     }
     return getLogger(callerClass, LoggerImpl.EMPTY_CONSUMER);
   }

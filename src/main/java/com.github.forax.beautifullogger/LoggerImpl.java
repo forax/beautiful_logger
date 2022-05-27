@@ -659,8 +659,12 @@ class LoggerImpl {
     }
   }
 
+  static Class<?> getCallerClassNoStackWalker() {
+    return (Class<?>) GET_CALLER_CLASS_SUPPLIER.get();
+  }
+
   static final MethodHandle GET_CALLER_CLASS_MH;
-  static final Supplier<?> GET_CALLER_CLASS_SUPPLIER;
+  private static final Supplier<?> GET_CALLER_CLASS_SUPPLIER;
   static {
     Supplier<?> getCallerClassSupplier = null;
     MethodHandle getCallerClassMH = findGetCallerClassUsingStackWalker();
