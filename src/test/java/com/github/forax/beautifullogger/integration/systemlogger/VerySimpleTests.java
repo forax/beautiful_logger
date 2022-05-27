@@ -17,6 +17,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 
 @SuppressWarnings("static-method")
+@DisabledOnJre(JRE.JAVA_8)
 public class VerySimpleTests {
   private static final Logger LOGGER = Logger.getLogger();
 
@@ -35,7 +36,6 @@ public class VerySimpleTests {
   }
   
   @Test
-  @DisabledOnJre(JRE.JAVA_8)
   public void overrideLevel() {
     class Conf { /* empty */ }
     LoggerConfig config = LoggerConfig.fromClass(Conf.class);
