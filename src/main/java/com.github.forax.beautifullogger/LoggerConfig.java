@@ -222,7 +222,7 @@ public interface LoggerConfig {
      */
     static LogFacadeFactory systemLoggerFactory() {
       return configClass -> {
-        Object logger = LoggerImpl.SystemLoggerFactoryImpl.getSystemLogger(configClass.getName());
+        Object logger = System.getLogger(configClass.getName());
         return () -> LoggerImpl.SystemLoggerFactoryImpl.SYSTEM_LOGGER.bindTo(logger);
       };
     }

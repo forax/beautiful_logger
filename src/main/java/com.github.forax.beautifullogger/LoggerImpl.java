@@ -107,10 +107,10 @@ class LoggerImpl {
     }
     
     private static MethodHandle empty_void(MethodType methodType) {
-      return MethodHandles.dropArguments(NOP, 0, methodType.parameterList());
-
-      // not available in Java 8
-      //return MethodHandles.empty(methodType);
+      if (IS_JAVA_8) {
+        return MethodHandles.dropArguments(NOP, 0, methodType.parameterList());
+      }
+      return MethodHandles.empty(methodType);
     }
     
     @SuppressWarnings("unused")
@@ -341,43 +341,11 @@ class LoggerImpl {
     return index == -1? "": name.substring(0, index);
   }
 
-  static class ModuleNameHolder {
-    static final MethodHandle GET_MODULE_NAME;
-    static {
-      MethodHandle getModuleName;
-      try {
-        Class<?> moduleClass = Class.forName("java.lang.Module");
-
-        Lookup lookup = MethodHandles.lookup();
-        MethodHandle getModule, getName;
-        try {
-          getModule = lookup.findVirtual(Class.class, "getModule", methodType(moduleClass));
-          getName = lookup.findVirtual(moduleClass, "getName", methodType(String.class));
-        } catch (NoSuchMethodException | IllegalAccessException e) {
-          throw new AssertionError(e);
-        }
-        getModuleName = MethodHandles.filterReturnValue(getModule, getName);
-
-      } catch (ClassNotFoundException e) {
-        getModuleName = null;
-      }
-      GET_MODULE_NAME = getModuleName;
-    }
-  }
-
   enum LoggerConfigKind {
     CLASS(Class::getName),
-    PACKAGE(type -> packageName(type)),
-    MODULE(type -> {
-      try {
-        return ModuleNameHolder.GET_MODULE_NAME == null?
-            null:
-            (String) ModuleNameHolder.GET_MODULE_NAME.invokeExact(type);
-      } catch (Throwable e) {
-        throw new AssertionError(e);
-      }
-    });
-    
+    PACKAGE(type -> IS_JAVA_8? packageName(type): type.getPackageName()),
+    MODULE(type -> IS_JAVA_8? null: type.getModule().getName());
+
     private final Function<Class<?>, String> nameExtractor;
     
     private LoggerConfigKind(Function<Class<?>, String> nameExtractor) {
@@ -498,6 +466,18 @@ class LoggerImpl {
   
   static LoggerConfigImpl configFrom(LoggerConfigKind kind, String name) {
     return CONFIG.computeIfAbsent(kind.key(name), __ ->  new LoggerConfigImpl());
+  }
+
+
+  static final boolean IS_JAVA_8;
+  static {
+    boolean isJava8 = true;
+    try {
+      Class.forName("java.lang.StackWalker");
+    } catch (ClassNotFoundException e) {
+      isJava8 = false;
+    }
+    IS_JAVA_8 = isJava8;
   }
 
   static final Object UNSAFE;
@@ -689,71 +669,40 @@ class LoggerImpl {
 
   static class SystemLoggerFactoryImpl {
     static final MethodHandle SYSTEM_LOGGER;
-    private static final MethodHandle GET_SYSTEM_LOGGER;
-    private static final Object ERROR, WARNING, INFO, DEBUG, TRACE;
     static {
       Lookup lookup = MethodHandles.lookup();
-      Class<?> systemLoggerClass, systemLoggerLevelClass;
       MethodHandle mh, filter;
       try {
-        systemLoggerClass = Class.forName("java.lang.System$Logger");
-        systemLoggerLevelClass = Class.forName("java.lang.System$Logger$Level");
-        mh = lookup.findVirtual(systemLoggerClass, "log",
-            methodType(void.class, systemLoggerLevelClass, String.class, Throwable.class));
+        mh = lookup.findVirtual(System.Logger.class, "log",
+            methodType(void.class, System.Logger.Level.class, String.class, Throwable.class));
         filter = lookup.findStatic(SystemLoggerFactoryImpl.class, "level",
-            methodType(Object.class, Level.class))
-            .asType(methodType(systemLoggerLevelClass, Level.class));
-      } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
+            methodType(System.Logger.Level.class, Level.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
         throw new AssertionError(e);
       }
       mh = filterArguments(mh, 1, filter);
       SYSTEM_LOGGER = permuteArguments(mh,
-          methodType(void.class, systemLoggerClass, String.class, Level.class, Throwable.class),
+          MethodType.methodType(void.class, System.Logger.class, String.class, Level.class, Throwable.class),
           0, 2, 1, 3);
-
-      try {
-        GET_SYSTEM_LOGGER = lookup.findStatic(System.class, "getLogger", methodType(systemLoggerClass, String.class))
-            .asType(methodType(Object.class, String.class));
-      } catch (NoSuchMethodException | IllegalAccessException e) {
-        throw new AssertionError(e);
-      }
-
-      try {
-        ERROR = systemLoggerLevelClass.getField("ERROR").get(null);
-        WARNING = systemLoggerLevelClass.getField("WARNING").get(null);
-        INFO = systemLoggerLevelClass.getField("INFO").get(null);
-        DEBUG = systemLoggerLevelClass.getField("DEBUG").get(null);
-        TRACE = systemLoggerLevelClass.getField("TRACE").get(null);
-      } catch (NoSuchFieldException | IllegalAccessException e) {
-        throw new AssertionError(e);
-      }
-    }
-
-    static Object getSystemLogger(String name) {
-      try {
-        return GET_SYSTEM_LOGGER.invokeExact(name);
-      } catch (Throwable e) {
-        throw new AssertionError(e);
-      }
     }
 
     @SuppressWarnings("unused")
-    private static Object level(Level level) {
+    private static System.Logger.Level level(Level level) {
       // do not use a switch here, we want this code to be inlined !
       if (level == Level.ERROR) {
-        return ERROR;
+        return System.Logger.Level.ERROR;
       }
       if (level == Level.WARNING) {
-        return WARNING;
+        return System.Logger.Level.WARNING;
       }
       if (level == Level.INFO) {
-        return INFO;
+        return System.Logger.Level.INFO;
       }
       if (level == Level.DEBUG) {
-        return DEBUG;
+        return System.Logger.Level.DEBUG;
       }
       if (level == Level.TRACE) {
-        return TRACE;
+        return System.Logger.Level.TRACE;
       }
       throw newIllegalStateException();
     }
