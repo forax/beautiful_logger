@@ -99,16 +99,15 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <release>9</release>
+          <!-- release>9</release -->
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.0.0-M5</version>
-        <configuration>
-          <useModulePath>false</useModulePath>
-        </configuration>
       </plugin>
 
       <plugin>
@@ -117,13 +116,13 @@
         <version>3.0.0</version>
         <executions>
           <execution>
-            <phase>process-classes</phase>
-            <id>rewriter</id>
+            <phase>prepare-package</phase>
+            <id>module-generator</id>
             <goals>
               <goal>java</goal>
             </goals>
             <configuration>
-              <mainClass>com.github.forax.beautifullogger.tool.Rewriter</mainClass>
+              <mainClass>com.github.forax.beautifullogger.tool.ModuleInfoGenerator</mainClass>
               <arguments>
                 <argument>target/classes</argument>
               </arguments>
