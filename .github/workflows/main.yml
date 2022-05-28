@@ -1,3 +1,4 @@
+name: Continuous Integration
 on:
   schedule:
     - cron: "0 0 * * *"
