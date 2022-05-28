@@ -6,7 +6,7 @@ that let you configure/re-configure the logger dynamically in a programmatic way
 
 This library requires at least Java 8 at runtime and is fully compatible with Java 9 modules.
 
-This library requires Java 8+ to build.
+For the support of Java 15+, the version 0.10.4+ should be used.
 
 The javadoc of the latest version is [available online](https://jitpack.io/com/github/forax/beautiful_logger/master-SNAPSHOT/javadoc/).
 
