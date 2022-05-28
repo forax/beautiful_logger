@@ -23,7 +23,7 @@ public class Rewriter {
     reader.accept(new ClassVisitor(Opcodes.ASM9, writer) {
       @Override
       public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        int newVersion = name.equals("module-info")? Opcodes.V11: Opcodes.V1_8;
+        int newVersion = name.equals("module-info")? Opcodes.V9: Opcodes.V1_8;
         super.visit(newVersion, access, name, signature, superName, interfaces);
       }
     }, ClassReader.SKIP_CODE);
@@ -39,7 +39,15 @@ public class Rewriter {
       stream
         .filter(path -> path.getFileName().toString().endsWith(".class"))
         .forEach(path -> {
+          boolean tool = path.toString().contains("com/github/forax/beautifullogger/tool");
           try {
+            if (tool) {
+              System.out.println("delete " + path);
+              Files.delete(path);
+              return;
+            }
+
+            System.out.println("rewrite " + path);
             Files.write(path, rewrite(Files.readAllBytes(path)));
           } catch (IOException e) {
             throw new UncheckedIOException(e);

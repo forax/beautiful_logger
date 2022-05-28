@@ -1,4 +1,4 @@
-/*package com.github.forax.beautifullogger;
+/*package com.github.forax.beautifullogger.tool;
 
 import java.util.function.Supplier;
 

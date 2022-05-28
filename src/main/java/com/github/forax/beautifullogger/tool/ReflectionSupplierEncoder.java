@@ -1,10 +1,8 @@
-/*package com.github.forax.beautifullogger;
+package com.github.forax.beautifullogger.tool;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
-
-import com.github.forax.beautifullogger.tool.Rewriter;
 
 public class ReflectionSupplierEncoder {
   public static void main(String[] args) throws IOException {
@@ -13,4 +11,4 @@ public class ReflectionSupplierEncoder {
     byte[] rewritedCode = Rewriter.rewrite(code);
     System.out.println(Base64.getEncoder().encodeToString(rewritedCode));
   }
-}*/
+}
