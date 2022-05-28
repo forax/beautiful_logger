@@ -140,4 +140,12 @@
 
     </plugins>
   </build>
+
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/forax/beautiful_logger</url>
+    </repository>
+  </distributionManagement>
 </project>
