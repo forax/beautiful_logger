@@ -23,7 +23,7 @@ public class ModuleInfoGenerator {
     classWriter.visitSource("module-info.java", null);
 
     ModuleVisitor moduleVisitor =
-        classWriter.visitModule("com.github.forax.beautifullogger", 0, "0.10");
+        classWriter.visitModule("com.github.forax.beautifullogger", 0, "0.10.4");
 
     moduleVisitor.visitRequire("java.base", ACC_MANDATED, null);
     moduleVisitor.visitRequire("jdk.unsupported", ACC_STATIC_PHASE, null);
