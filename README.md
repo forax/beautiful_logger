@@ -61,25 +61,28 @@ Get latest binary distribution via [JitPack](https://jitpack.io/#forax/beautiful
 
 ### Maven
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-    <dependency>
-        <groupId>com.github.forax</groupId>
-        <artifactId>beautiful_logger</artifactId>
-        <version>master-SNAPSHOT</version>
-    </dependency>
-
+```xml
+  <repositories>
+      <repository>
+          <id>jitpack.io</id>
+          <url>https://jitpack.io</url>
+      </repository>
+  </repositories>
+  <dependency>
+      <groupId>com.github.forax</groupId>
+      <artifactId>beautiful_logger</artifactId>
+      <version>master-SNAPSHOT</version>
+  </dependency>
+```
 
 ### Gradle
 
-    repositories {
-        ...
-        maven { url 'https://jitpack.io' }
-    }
-    dependencies {
-        compile 'com.github.forax:beautiful_logger:master-SNAPSHOT'
-    }
+```gradle
+  repositories {
+      ...
+      maven { url 'https://jitpack.io' }
+  }
+  dependencies {
+      compile 'com.github.forax:beautiful_logger:master-SNAPSHOT'
+  }
+```
