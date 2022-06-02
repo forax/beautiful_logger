@@ -216,8 +216,8 @@ public interface LoggerConfig {
     }
     
     /**
-     * Returns a LogEventFactory that uses the {@link java.lang.System.Logger system logger}.
-     * @return a new LogEventFactory that delegate the logging to the {@link java.lang.System.Logger system logger}.
+     * Returns a LogEventFactory that uses the {@code java.lang.System.Logger system logger}.
+     * @return a new LogEventFactory that delegate the logging to the {@code java.lang.System.Logger system logger}.
      */
     static LogFacadeFactory systemLoggerFactory() {
       return configClass -> {
@@ -251,7 +251,7 @@ public interface LoggerConfig {
     ConfigOption enable(boolean enable);
     /**
      * Update the configuration level.
-     * 
+     * <p>
      * Note that the creation of the underlying logger is lazy so
      * if the level of the underlying logger need to be overridden
      * this operation will be delayed until the underlying logger is created.
