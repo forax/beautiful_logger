@@ -4,7 +4,7 @@
   
   <groupId>com.github.forax</groupId>
   <artifactId>beautifullogger</artifactId>
-  <version>0.10.5</version>
+  <version>0.10.6</version>
   
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Yet another logger API in Java with beautiful features</description>
@@ -145,7 +145,6 @@
         <configuration>
           <sourcepath>src/main/java/</sourcepath>
           <source>8</source>
-          <!-- destDir>javadoc</destDir -->
           <!-- excludePackageNames>com.github.forax.beautifullogger.tool</excludePackageNames -->
         </configuration>
         <executions>
