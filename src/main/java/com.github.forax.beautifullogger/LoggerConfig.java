@@ -10,13 +10,12 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import com.github.forax.beautifullogger.Logger.Level;
 
 /**
  * The configuration of a {@link Logger}.
- * 
+ * <p>
  * The configuration can be set on a {@link LoggerConfig#fromModule(String) module},
  * a {@link LoggerConfig#fromPackage(Package) package} or
  * a {@link LoggerConfig#fromClass(Class) class}.
@@ -48,8 +47,8 @@ import com.github.forax.beautifullogger.Logger.Level;
  * 
  * Because changing a configuration property may cause the Java Virtual Machine to de-optimize assembly codes,
  * the change to the properties of a LoggerConfig has to be done in bulk using the method {@link LoggerConfig#update(Consumer)}.
- * 
- * By example to change the level of a configuration
+ * <p>
+ * For example to change the level of a configuration
  * <pre>
  *    config.update(opt -&gt; opt.level(Level.TRACE, false)); 
  * </pre>
