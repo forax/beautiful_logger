@@ -138,14 +138,12 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.4.0</version>
+      </plugin>
+
     </plugins>
   </build>
-
-  <distributionManagement>
-    <repository>
-      <id>github</id>
-      <name>GitHub Packages</name>
-      <url>https://maven.pkg.github.com/forax/beautiful_logger</url>
-    </repository>
-  </distributionManagement>
 </project>
