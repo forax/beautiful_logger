@@ -116,12 +116,7 @@ public interface LoggerConfig {
        * The LOG4J strategy.
        */
       LOG4J(Optional.of(LogFacadeFactory.log4jFactory()).filter(__ -> isAvailable("org.apache.logging.log4j.LogManager"))),
-      
-      /**
-       * The Logback strategy.
-       */
-      LOGBACK(Optional.of(LogFacadeFactory.logbackFactory()).filter(__ -> isAvailable("ch.qos.logback.classic.LoggerContext"))),
-      
+
       /**
        * The System.Logger strategy.
        */
@@ -148,13 +143,14 @@ public interface LoggerConfig {
         }
       }
       
-      static final LogFacadeFactory DEFAULT_FACTORY = fromStrategies(SLF4J, LOG4J, LOGBACK, SYSTEM_LOGGER, JUL);
+      static final LogFacadeFactory DEFAULT_FACTORY = fromStrategies(SLF4J, LOG4J, SYSTEM_LOGGER, JUL);
     }
     
     /**
-     * Return the first available LogEventFactory among {@link Strategy#SLF4J}, {@link Strategy#LOG4J}, {@link Strategy#LOGBACK},
+     * Return the first available LogEventFactory among {@link Strategy#SLF4J}, {@link Strategy#LOG4J},
      * {@link Strategy#SYSTEM_LOGGER} and {@link Strategy#JUL}.
-     * This call is equivalent to {@link LogFacadeFactory#fromStrategies(Strategy...) fromStrategies(SLF4J, LOG4J, LOGBACK, SYSTEM_LOGGER, JUL)}.
+     * This call is equivalent to
+     * {@link LogFacadeFactory#fromStrategies(Strategy...) fromStrategies(SLF4J, LOG4J, LOGBACK, SYSTEM_LOGGER, JUL)}.
      * @return the first available LogEventFactory.
      */
     static LogFacadeFactory defaultFactory() {
@@ -189,30 +185,6 @@ public interface LoggerConfig {
      */
     static LogFacadeFactory log4jFactory() {
       return configClass -> new LoggerImpl.Log4JFactoryImpl(org.apache.logging.log4j.LogManager.getLogger(configClass));
-    }
-    
-    /**
-     * Returns a LogEventFactory that uses Logback to log events.
-     * @return a LogEventFactory that uses Logback to log events.
-     */
-    static LogFacadeFactory logbackFactory() {
-      return configClass -> {
-        ch.qos.logback.classic.LoggerContext context = new ch.qos.logback.classic.LoggerContext();
-        ch.qos.logback.classic.util.ContextInitializer contextInitializer =
-            new ch.qos.logback.classic.util.ContextInitializer(context);
-        try {
-          URL url = contextInitializer.findURLOfDefaultConfigurationFile(true);
-          if (url != null) {
-            contextInitializer.configureByResource(url);
-          }
-        } catch (RuntimeException e) {
-          throw e;
-        } catch (/*Joran*/ Exception e) { // exception are loaded eagerly by the VM
-          throw new IllegalStateException(e);
-        }
-        ch.qos.logback.classic.Logger logger = context.getLogger(configClass);
-        return new LoggerImpl.LogbackFactoryImpl(logger);
-      };
     }
     
     /**
