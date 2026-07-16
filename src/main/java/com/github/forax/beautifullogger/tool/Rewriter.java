@@ -16,6 +16,10 @@ import org.objectweb.asm.Opcodes;
  * Rewrite the bytecode to be Java 8 compatible
  */
 public final class Rewriter {
+  private Rewriter() {
+    throw new AssertionError();
+  }
+
   /**
    * Rewrite the bytecode pass as parameter to be java 8 compatible.
    * @param code the bytecode to be rewritten.

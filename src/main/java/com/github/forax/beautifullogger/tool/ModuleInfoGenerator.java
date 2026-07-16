@@ -19,6 +19,10 @@ import static org.objectweb.asm.Opcodes.V9;
  * Generate the module-info.class so Java 9+ uses can be modular.
  */
 public final class ModuleInfoGenerator {
+  private ModuleInfoGenerator() {
+    throw new AssertionError();
+  }
+
   /**
    * Generate the module-info.class bytecode.
    * @return the bytecode of the module-info.class.

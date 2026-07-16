@@ -47,6 +47,10 @@ import org.objectweb.asm.Type;
  * Generate the Logger Stub.
  */
 public final class LoggerGenerator {
+  private LoggerGenerator() {
+    throw new AssertionError();
+  }
+
   /**
    * Generate the Logger Stub.
    *

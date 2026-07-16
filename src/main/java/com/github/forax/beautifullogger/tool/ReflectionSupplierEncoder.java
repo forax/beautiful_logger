@@ -7,7 +7,11 @@ import java.util.Base64;
 /**
  * Base64 encodes the class ReflectionSupplier.class so it can be embedded easily in the code.
  */
-public class ReflectionSupplierEncoder {
+public final class ReflectionSupplierEncoder {
+  private ReflectionSupplierEncoder() {
+    throw new AssertionError();
+  }
+
   /**
    * Base64 encodes the class ReflectionSupplier.class so it can be embedded easily in the code.
    *
