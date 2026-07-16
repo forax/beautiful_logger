@@ -4,7 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 
+/**
+ * Base64 encodes the class ReflectionSupplier.class so it can be embedded easily in the code.
+ */
 public class ReflectionSupplierEncoder {
+  /**
+   * Base64 encodes the class ReflectionSupplier.class so it can be embedded easily in the code.
+   *
+   * @param args not used.
+   * @throws IOException if an i/o error occurs.
+   */
   public static void main(String[] args) throws IOException {
     //InputStream input = ReflectionSupplierEncoder.class.getResourceAsStream("ReflectionSupplier.class");
     //byte[] code = input.readAllBytes();

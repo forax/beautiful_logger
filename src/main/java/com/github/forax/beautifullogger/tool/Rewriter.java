@@ -15,7 +15,13 @@ import org.objectweb.asm.Opcodes;
 /**
  * Rewrite the bytecode to be Java 8 compatible
  */
-public class Rewriter {
+public final class Rewriter {
+  /**
+   * Rewrite the bytecode pass as parameter to be java 8 compatible.
+   * @param code the bytecode to be rewritten.
+   * @return a Java 8 compatible bytecode.
+   * @throws IOException if an i/o occurs.
+   */
   public static byte[] rewrite(byte[] code) throws IOException {
     ClassReader reader = new ClassReader(code);
     ClassWriter writer = new ClassWriter(reader, 0);
@@ -30,7 +36,14 @@ public class Rewriter {
     
     return writer.toByteArray();
   }
-  
+
+  /**
+   * Rewrite the bytecode of the library to be Java 8 compatible.
+   * This allows to use new VM features like anonymous classes or hidden classes
+   * that may be available at runtime while still being Java 8 compatible.
+   * @param args not used.
+   * @throws IOException if an i/o error occurs.
+   */
   public static void main(String[] args) throws IOException {
     Path directory = Paths.get(args[0]);
     System.out.println("rewrite " + directory + " to Java 8");

@@ -15,7 +15,14 @@ import static org.objectweb.asm.Opcodes.ACC_MODULE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC_PHASE;
 import static org.objectweb.asm.Opcodes.V9;
 
-public class ModuleInfoGenerator {
+/**
+ * Generate the module-info.class so Java 9+ uses can be modular.
+ */
+public final class ModuleInfoGenerator {
+  /**
+   * Generate the module-info.class bytecode.
+   * @return the bytecode of the module-info.class.
+   */
   public static byte[] generate() {
 
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
@@ -43,6 +50,11 @@ public class ModuleInfoGenerator {
     return classWriter.toByteArray();
   }
 
+  /**
+   * Generate the module-info.class and remove all the classes in tools.
+   * @param args not used.
+   * @throws IOException if an i/o error occurs.
+   */
   public static void main(String[] args) throws IOException {
     Path directory = Paths.get(args[0]);
 

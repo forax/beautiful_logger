@@ -43,7 +43,16 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-public class LoggerGenerator {
+/**
+ * Generate the Logger Stub.
+ */
+public final class LoggerGenerator {
+  /**
+   * Generate the Logger Stub.
+   *
+   * @param args not used.
+   * @throws IOException if an i/o error occurs.
+   */
   public static void main(String[] args) throws IOException {
     ClassWriter writer = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     
