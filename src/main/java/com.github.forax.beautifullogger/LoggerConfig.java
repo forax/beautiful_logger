@@ -267,7 +267,7 @@ public interface LoggerConfig {
    * @return an Optional containing true if the logging level override the log level
    *         of the underlying logger.
    * 
-   * @see LoggerConfig.ConfigOption#level()
+   * @see LoggerConfig.ConfigOption#level(Logger.Level, boolean)
    */
   Optional<Boolean> levelOverride();
   /**
