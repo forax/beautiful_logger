@@ -250,16 +250,16 @@ public interface LoggerConfig {
   
   /**
    * Returns if the logging is enable, disable or not set.
-   * @return true if the logging is enable, disable or not set.
+   * @return an optional containing if the logging is enable, disable or not set.
    * 
-   * @see ConfigOption#enable(boolean)
+   * @see LoggerConfig.ConfigOption#enable(boolean)
    */
   Optional<Boolean> enable();
   /**
    * Returns the logging level if set.
    * @return the logging level if set.
    * 
-   * @see ConfigOption#levelOverride()
+   * @see LoggerConfig.ConfigOption#level(Logger.Level, boolean)
    */
   Optional<Level> level();
   /**
