@@ -22,7 +22,7 @@ public class LoggerConfigurationTests {
     Logger logger = Logger.getLogger(
         new Object() { }.getClass(),
         upd -> upd.enable(false).logFacadeFactory(printer((message, loggerLevel, context) -> {
-          fail("logger shouble be disable");
+          fail("logger should be disabled");
         })));
     logger.debug("exception", null);
     logger.error("exception", null);
@@ -37,7 +37,7 @@ public class LoggerConfigurationTests {
     Logger logger = Logger.getLogger(
         confClass,
         upd -> upd.logFacadeFactory(printer((message, loggerLevel, context) -> {
-          fail("logger shouble be disable");
+          fail("logger should be disabled");
         })));
     LoggerConfig.fromClass(confClass).update(upd -> upd.enable(false));
     logger.debug("exception", null);
