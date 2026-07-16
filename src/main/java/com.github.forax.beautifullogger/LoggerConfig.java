@@ -267,14 +267,14 @@ public interface LoggerConfig {
    * @return an Optional containing true if the logging level override the log level
    *         of the underlying logger.
    * 
-   * @see ConfigOption#level()
+   * @see LoggerConfig.ConfigOption#level()
    */
   Optional<Boolean> levelOverride();
   /**
    * Returns the log event factory if set.
    * @return the log event factory if set.
    * 
-   * @see ConfigOption#logFacadeFactory(LoggerConfig.LogFacadeFactory)
+   * @see LoggerConfig.ConfigOption#logFacadeFactory(LoggerConfig.LogFacadeFactory)
    */
   Optional<LogFacadeFactory> logFacadeFactory();
   
