@@ -89,7 +89,7 @@ public interface LoggerConfig {
    * a logging event for a configuration class.
    * 
    * @see LoggerConfig#logFacadeFactory()
-   * @see ConfigOption#logFacadeFactory(LogFacadeFactory)
+   * @see ConfigOption#logFacadeFactory(LoggerConfig.LogFacadeFactory)
    */
   @FunctionalInterface
   interface LogFacadeFactory {
@@ -259,21 +259,22 @@ public interface LoggerConfig {
    * Returns the logging level if set.
    * @return the logging level if set.
    * 
-   * @see ConfigOption#level(Level, boolean)
+   * @see ConfigOption#levelOverride()
    */
   Optional<Level> level();
   /**
    * Returns if the logging level override the log level of the underlying logger.
-   * @return true if the logging level override the log level of the underlying logger.
+   * @return an Optional containing true if the logging level override the log level
+   *         of the underlying logger.
    * 
-   * @see ConfigOption#level(Level, boolean)
+   * @see ConfigOption#level()
    */
   Optional<Boolean> levelOverride();
   /**
    * Returns the log event factory if set.
    * @return the log event factory if set.
    * 
-   * @see ConfigOption#logFacadeFactory(LogFacadeFactory)
+   * @see ConfigOption#logFacadeFactory(LoggerConfig.LogFacadeFactory)
    */
   Optional<LogFacadeFactory> logFacadeFactory();
   
